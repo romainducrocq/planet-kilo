@@ -59,19 +59,17 @@ struct termios {
 extern int tcsetattr(int __fd, int __optional_actions, const struct termios* __termios_p) /* __THROW */;
 extern int tcgetattr(int __fd, struct termios* __termios_p) /* __THROW */;
 #define TCSAFLUSH 2
-#define BRKINT 0000002 /* Signal interrupt on break.  */
-#define INPCK 0000020  /* Enable input parity check.  */
-#define ISTRIP 0000040 /* Strip 8th bit off characters.  */
-#define ICRNL 0000400  /* Map CR to NL on input.  */
-#define IXON 0002000   /* Enable start/stop output control.  */
-#define OPOST 0000001  /* Post-process output.  */
-#define CS8 0000060
-#define ECHO 0000010   /* Enable echo.  */
-#define ICANON 0000002 /* Canonical input (erase and kill processing).  */
-#define IEXTEN                                              \
-    0100000          /* Enable implementation-defined input \
-            processing.  */
-#define ISIG 0000001 /* Enable signals.  */
+#define BRKINT 2     /* 0000002 Signal interrupt on break.  */
+#define INPCK 16     /* 0000020 Enable input parity check.  */
+#define ISTRIP 32    /* 0000040 Strip 8th bit off characters.  */
+#define ICRNL 256    /* 0000400 Map CR to NL on input.  */
+#define IXON 1024    /* 0002000 Enable start/stop output control.  */
+#define OPOST 1      /* 0000001 Post-process output.  */
+#define CS8 48       /* 0000060 */
+#define ECHO 8       /* 0000010 Enable echo.  */
+#define ICANON 2     /* 0000002 Canonical input (erase and kill processing).  */
+#define IEXTEN 32768 /* 0100000 Enable implementation-defined input processing.  */
+#define ISIG 1       /* 0000001 Enable signals.  */
 #define VTIME 5
 #define VMIN 6
 
@@ -940,7 +938,7 @@ int editorOpen(char* filename) {
 int editorSave(void) {
     int len;
     char* buf = editorRowsToString(&len);
-    int fd = open(E.filename, O_RDWR | O_CREAT, 0644);
+    int fd = open(E.filename, O_RDWR | O_CREAT, 420); /* 0644 */
     if (fd == -1)
         goto writeerr;
 
@@ -1007,9 +1005,8 @@ void editorRefreshScreen(void) {
         if (filerow >= E.numrows) {
             if (E.numrows == 0 && y == E.screenrows / 3) {
                 char welcome[80];
-                int welcomelen =
-                    snprintf(welcome, sizeof(welcome), "Kilo editor -- version %s%s",
-                        KILO_VERSION, (char[7]){ESC,'[','0','K','\r','\n'});
+                int welcomelen = snprintf(welcome, sizeof(welcome), "Kilo editor -- version %s%s", KILO_VERSION,
+                    (char[7]) {ESC, '[', '0', 'K', '\r', '\n'});
                 int padding = (E.screencols - welcomelen) / 2;
                 if (padding) {
                     abAppend(&ab, "~", 1);
