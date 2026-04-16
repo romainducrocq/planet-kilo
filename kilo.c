@@ -38,7 +38,43 @@
 #define _POSIX_C_SOURCE 200809L
 #endif
 
-#include <termios.h>
+// #include <termios.h>
+typedef unsigned int tcflag_t;
+typedef unsigned char cc_t;
+typedef unsigned int speed_t;
+#define NCCS 32
+struct termios
+  {
+    tcflag_t c_iflag;		/* input mode flags */
+    tcflag_t c_oflag;		/* output mode flags */
+    tcflag_t c_cflag;		/* control mode flags */
+    tcflag_t c_lflag;		/* local mode flags */
+    cc_t c_line;			/* line discipline */
+    cc_t c_cc[NCCS];		/* control characters */
+    speed_t c_ispeed;		/* input speed */
+    speed_t c_ospeed;		/* output speed */
+// #define _HAVE_STRUCT_TERMIOS_C_ISPEED 1
+// #define _HAVE_STRUCT_TERMIOS_C_OSPEED 1
+  };
+extern int tcsetattr (int __fd, int __optional_actions,
+		      const struct termios *__termios_p) /* __THROW */;
+extern int tcgetattr (int __fd, struct termios *__termios_p) /* __THROW */;
+#define	TCSAFLUSH	2
+#define BRKINT	0000002  /* Signal interrupt on break.  */
+#define INPCK	0000020  /* Enable input parity check.  */
+#define ISTRIP	0000040  /* Strip 8th bit off characters.  */
+#define ICRNL	0000400  /* Map CR to NL on input.  */
+#define IXON	0002000  /* Enable start/stop output control.  */
+#define OPOST	0000001  /* Post-process output.  */
+#define   CS8	0000060
+#define ECHO	0000010   /* Enable echo.  */
+#define ICANON	0000002   /* Canonical input (erase and kill processing).  */
+#define IEXTEN	0100000   /* Enable implementation-defined input
+			     processing.  */
+#define ISIG	0000001   /* Enable signals.  */
+#define VTIME 5
+#define VMIN 6
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -46,12 +82,37 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <unistd.h>
+// #include <sys/types.h>
+// #include <sys/ioctl.h>
+struct winsize
+  {
+    unsigned short int ws_row;
+    unsigned short int ws_col;
+    unsigned short int ws_xpixel;
+    unsigned short int ws_ypixel;
+  };
+extern int ioctl (int __fd, unsigned long int __request, ...) /* __THROW */;
+#define TIOCGWINSZ	0x5413
+
+// #include <sys/time.h>
+// #include <unistd.h>
+#define	STDIN_FILENO	0	/* Standard input.  */
+#define	STDOUT_FILENO	1	/* Standard output.  */
+extern int isatty (int __fd) /* __THROW */;
+extern ssize_t read (int __fd, void *__buf, size_t __nbytes);
+extern ssize_t write(int __fd, const void *__buf, size_t __n);
+typedef long __off_t;
+extern int ftruncate (int __fd, __off_t __length) /* __THROW __wur */;
+extern int close (int __fd);
+
 #include <stdarg.h>
-#include <fcntl.h>
+// #include <fcntl.h>
+extern int open (const char *__path, int __oflag, ...);
+#define O_RDWR		     02
+#ifndef O_CREAT
+# define O_CREAT	   0100	/* Not fcntl.  */
+#endif
+
 #include <signal.h>
 
 /* Syntax highlight types */
