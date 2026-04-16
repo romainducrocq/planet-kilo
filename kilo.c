@@ -421,7 +421,7 @@ int getWindowSize(int ifd, int ofd, int* rows, int* cols) {
 
         /* Restore position. */
         char seq[32];
-        snprintf(seq, 32, "\x1b[%d;%dH", orig_row, orig_col);
+        snprintf(seq, 32, "%c[%d;%dH", ESC, orig_row, orig_col);
         if (write(ofd, seq, strlen(seq)) == -1) {
             /* Can't recover... */
         }
@@ -1055,7 +1055,7 @@ void editorRefreshScreen(void) {
                     int color = editorSyntaxToColor(hl[j]);
                     if (color != current_color) {
                         char buf[16];
-                        int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", color);
+                        int clen = snprintf(buf, sizeof(buf), "%c[%dm", ESC, color);
                         current_color = color;
                         abAppend(&ab, buf, clen);
                     }
@@ -1110,7 +1110,7 @@ void editorRefreshScreen(void) {
             cx++;
         }
     }
-    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, cx);
+    snprintf(buf, sizeof(buf), "%c[%d;%dH", ESC, E.cy + 1, cx);
     abAppend(&ab, buf, strlen(buf));
     abAppend(&ab, (char[7]) {ESC, '[', '?', '2', '5', 'h'}, 6); /* Show cursor. */
     write(STDOUT_FILENO, ab.b, ab.len);
