@@ -33,6 +33,7 @@
  */
 
 #define KILO_VERSION "0.0.1"
+#define NULTERM 0
 
 // #ifdef __linux__
 // #define _POSIX_C_SOURCE 200809L
@@ -377,7 +378,7 @@ int getCursorPosition(int ifd, int ofd, int *rows, int *cols) {
         if (buf[i] == 'R') break;
         i++;
     }
-    buf[i] = '\0';
+    buf[i] = NULTERM;
 
     /* Parse it. */
     if (buf[0] != ESC || buf[1] != '[') return -1;
@@ -424,7 +425,7 @@ failed:
 /* ====================== Syntax highlight color scheme  ==================== */
 
 int is_separator(int c) {
-    return c == '\0' || isspace(c) || strchr(",.()+-/*=~%[];",c) != NULL;
+    return c == NULTERM || isspace(c) || strchr(",.()+-/*=~%[];",c) != NULL;
 }
 
 /* Return true if the specified row last char is part of a multi line comment
@@ -600,7 +601,7 @@ void editorSelectSyntaxHighlight(char *filename) {
             char *p;
             int patlen = strlen(s->filematch[i]);
             if ((p = strstr(filename,s->filematch[i])) != NULL) {
-                if (s->filematch[i][0] != '.' || p[patlen] == '\0') {
+                if (s->filematch[i][0] != '.' || p[patlen] == NULTERM) {
                     E.syntax = s;
                     return;
                 }
@@ -641,7 +642,7 @@ void editorUpdateRow(struct erow *row) {
         }
     }
     row->rsize = idx;
-    row->render[idx] = '\0';
+    row->render[idx] = NULTERM;
 
     /* Update the syntax highlighting attributes of the row. */
     editorUpdateSyntax(row);
@@ -712,7 +713,7 @@ char *editorRowsToString(int *buflen) {
         *p = '\n';
         p++;
     }
-    *p = '\0';
+    *p = NULTERM;
     return buf;
 }
 
@@ -726,7 +727,7 @@ void editorRowInsertChar(struct erow *row, int at, int c) {
         /* In the next line +2 means: new char and null term. */
         row->chars = realloc(row->chars,row->size+padlen+2);
         memset(row->chars+row->size,' ',padlen);
-        row->chars[row->size+padlen+1] = '\0';
+        row->chars[row->size+padlen+1] = NULTERM;
         row->size += padlen+1;
     } else {
         /* If we are in the middle of the string just make space for 1 new
@@ -745,7 +746,7 @@ void editorRowAppendString(struct erow *row, char *s, size_t len) {
     row->chars = realloc(row->chars,row->size+len+1);
     memcpy(row->chars+row->size,s,len);
     row->size += len;
-    row->chars[row->size] = '\0';
+    row->chars[row->size] = NULTERM;
     editorUpdateRow(row);
     E.dirty++;
 }
@@ -803,7 +804,7 @@ void editorInsertNewline(void) {
         /* We are in the middle of a line. Split it between two rows. */
         editorInsertRow(filerow+1,row->chars+filecol,row->size-filecol);
         row = &E.row[filerow];
-        row->chars[filecol] = '\0';
+        row->chars[filecol] = NULTERM;
         row->size = filecol;
         editorUpdateRow(row);
     }
@@ -877,7 +878,7 @@ int editorOpen(char *filename) {
     ssize_t linelen;
     while((linelen = getline(&line,&linecap,fp)) != -1) {
         if (linelen && (line[linelen-1] == '\n' || line[linelen-1] == '\r'))
-            line[--linelen] = '\0';
+            line[--linelen] = NULTERM;
         editorInsertRow(E.numrows,line,linelen);
     }
     free(line);
@@ -1098,7 +1099,7 @@ void editorFind(int fd) {
 
         int c = editorReadKey(fd);
         if (c == DEL_KEY || c == CTRL_H || c == BACKSPACE) {
-            if (qlen != 0) query[--qlen] = '\0';
+            if (qlen != 0) query[--qlen] = NULTERM;
             last_match = -1;
         } else if (c == ESC || c == ENTER) {
             if (c == ESC) {
@@ -1115,7 +1116,7 @@ void editorFind(int fd) {
         } else if (isprint(c)) {
             if (qlen < KILO_QUERY_LEN) {
                 query[qlen++] = c;
-                query[qlen] = '\0';
+                query[qlen] = NULTERM;
                 last_match = -1;
             }
         }
