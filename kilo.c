@@ -34,9 +34,9 @@
 
 #define KILO_VERSION "0.0.1"
 
-#ifdef __linux__
-#define _POSIX_C_SOURCE 200809L
-#endif
+// #ifdef __linux__
+// #define _POSIX_C_SOURCE 200809L
+// #endif
 
 // #include <termios.h>
 typedef unsigned int tcflag_t;
@@ -139,7 +139,7 @@ struct editorSyntax {
 };
 
 /* This structure represents a single line of the file we are editing. */
-typedef struct erow {
+struct erow {
     int idx;            /* Row index in the file, zero-based. */
     int size;           /* Size of the row, excluding the null term. */
     int rsize;          /* Size of the rendered row. */
@@ -148,11 +148,11 @@ typedef struct erow {
     unsigned char *hl;  /* Syntax highlight type for each character in render.*/
     int hl_oc;          /* Row had open comment at end in last syntax highlight
                            check. */
-} erow;
+};
 
-typedef struct hlcolor {
-    int r,g,b;
-} hlcolor;
+// typedef struct hlcolor {
+//     int r,g,b;
+// } hlcolor;
 
 struct editorConfig {
     int cx,cy;  /* Cursor x and y position in characters */
@@ -162,7 +162,7 @@ struct editorConfig {
     int screencols; /* Number of cols that we can show */
     int numrows;    /* Number of rows */
     int rawmode;    /* Is terminal raw mode enabled? */
-    erow *row;      /* Rows */
+    struct erow *row;      /* Rows */
     int dirty;      /* File modified but not saved. */
     char *filename; /* Currently open filename */
     char statusmsg[80];
@@ -172,32 +172,31 @@ struct editorConfig {
 
 static struct editorConfig E;
 
-enum KEY_ACTION{
-        KEY_NULL = 0,       /* NULL */
-        CTRL_C = 3,         /* Ctrl-c */
-        CTRL_D = 4,         /* Ctrl-d */
-        CTRL_F = 6,         /* Ctrl-f */
-        CTRL_H = 8,         /* Ctrl-h */
-        TAB = 9,            /* Tab */
-        CTRL_L = 12,        /* Ctrl+l */
-        ENTER = 13,         /* Enter */
-        CTRL_Q = 17,        /* Ctrl-q */
-        CTRL_S = 19,        /* Ctrl-s */
-        CTRL_U = 21,        /* Ctrl-u */
-        ESC = 27,           /* Escape */
-        BACKSPACE =  127,   /* Backspace */
-        /* The following are just soft codes, not really reported by the
-         * terminal directly. */
-        ARROW_LEFT = 1000,
-        ARROW_RIGHT,
-        ARROW_UP,
-        ARROW_DOWN,
-        DEL_KEY,
-        HOME_KEY,
-        END_KEY,
-        PAGE_UP,
-        PAGE_DOWN
-};
+/* KEY_ACTION */
+#define KEY_NULL 0       /* NULL */
+#define CTRL_C 3         /* Ctrl-c */
+#define CTRL_D 4         /* Ctrl-d */
+#define CTRL_F 6         /* Ctrl-f */
+#define CTRL_H 8         /* Ctrl-h */
+#define TAB 9            /* Tab */
+#define CTRL_L 12        /* Ctrl+l */
+#define ENTER 13         /* Enter */
+#define CTRL_Q 17        /* Ctrl-q */
+#define CTRL_S 19        /* Ctrl-s */
+#define CTRL_U 21        /* Ctrl-u */
+#define ESC 27           /* Escape */
+#define BACKSPACE  127   /* Backspace */
+/* The following are just soft codes, not really reported by the
+    * terminal directly. */
+#define ARROW_LEFT 1000
+#define ARROW_RIGHT 1001
+#define ARROW_UP 1002
+#define ARROW_DOWN 1003
+#define DEL_KEY 1004
+#define HOME_KEY 1005
+#define END_KEY 1006
+#define PAGE_UP 1007
+#define PAGE_DOWN 1008
 
 void editorSetStatusMessage(const char *fmt, ...);
 
@@ -431,7 +430,7 @@ int is_separator(int c) {
 /* Return true if the specified row last char is part of a multi line comment
  * that starts at this row or at one before, and does not end at the end
  * of the row but spawns to the next row. */
-int editorRowHasOpenComment(erow *row) {
+int editorRowHasOpenComment(struct erow *row) {
     if (row->hl && row->rsize && row->hl[row->rsize-1] == HL_MLCOMMENT &&
         (row->rsize < 2 || (row->render[row->rsize-2] != '*' ||
                             row->render[row->rsize-1] != '/'))) return 1;
@@ -440,7 +439,7 @@ int editorRowHasOpenComment(erow *row) {
 
 /* Set every byte of row->hl (that corresponds to every character in the line)
  * to the right syntax highlight type (HL_* defines). */
-void editorUpdateSyntax(erow *row) {
+void editorUpdateSyntax(struct erow *row) {
     row->hl = realloc(row->hl,row->rsize);
     memset(row->hl,HL_NORMAL,row->rsize);
 
@@ -614,7 +613,7 @@ void editorSelectSyntaxHighlight(char *filename) {
 /* ======================= Editor rows implementation ======================= */
 
 /* Update the rendered version and the syntax highlight of a row. */
-void editorUpdateRow(erow *row) {
+void editorUpdateRow(struct erow *row) {
     unsigned int tabs = 0, nonprint = 0;
     int j, idx;
 
@@ -652,7 +651,7 @@ void editorUpdateRow(erow *row) {
  * if required. */
 void editorInsertRow(int at, char *s, size_t len) {
     if (at > E.numrows) return;
-    E.row = realloc(E.row,sizeof(erow)*(E.numrows+1));
+    E.row = realloc(E.row,sizeof(struct erow)*(E.numrows+1));
     if (at != E.numrows) {
         memmove(E.row+at+1,E.row+at,sizeof(E.row[0])*(E.numrows-at));
         for (int j = at+1; j <= E.numrows; j++) E.row[j].idx++;
@@ -671,7 +670,7 @@ void editorInsertRow(int at, char *s, size_t len) {
 }
 
 /* Free row's heap allocated stuff. */
-void editorFreeRow(erow *row) {
+void editorFreeRow(struct erow *row) {
     free(row->render);
     free(row->chars);
     free(row->hl);
@@ -680,7 +679,7 @@ void editorFreeRow(erow *row) {
 /* Remove the row at the specified position, shifting the remainign on the
  * top. */
 void editorDelRow(int at) {
-    erow *row;
+    struct erow *row;
 
     if (at >= E.numrows) return;
     row = E.row+at;
@@ -719,7 +718,7 @@ char *editorRowsToString(int *buflen) {
 
 /* Insert a character at the specified position in a row, moving the remaining
  * chars on the right if needed. */
-void editorRowInsertChar(erow *row, int at, int c) {
+void editorRowInsertChar(struct erow *row, int at, int c) {
     if (at > row->size) {
         /* Pad the string with spaces if the insert location is outside the
          * current length by more than a single character. */
@@ -742,7 +741,7 @@ void editorRowInsertChar(erow *row, int at, int c) {
 }
 
 /* Append the string 's' at the end of a row */
-void editorRowAppendString(erow *row, char *s, size_t len) {
+void editorRowAppendString(struct erow *row, char *s, size_t len) {
     row->chars = realloc(row->chars,row->size+len+1);
     memcpy(row->chars+row->size,s,len);
     row->size += len;
@@ -752,7 +751,7 @@ void editorRowAppendString(erow *row, char *s, size_t len) {
 }
 
 /* Delete the character at offset 'at' from the specified row. */
-void editorRowDelChar(erow *row, int at) {
+void editorRowDelChar(struct erow *row, int at) {
     if (row->size <= at) return;
     memmove(row->chars+at,row->chars+at+1,row->size-at);
     editorUpdateRow(row);
@@ -764,7 +763,7 @@ void editorRowDelChar(erow *row, int at) {
 void editorInsertChar(int c) {
     int filerow = E.rowoff+E.cy;
     int filecol = E.coloff+E.cx;
-    erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
+    struct erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
 
     /* If the row where the cursor is currently located does not exist in our
      * logical representaion of the file, add enough empty rows as needed. */
@@ -786,7 +785,7 @@ void editorInsertChar(int c) {
 void editorInsertNewline(void) {
     int filerow = E.rowoff+E.cy;
     int filecol = E.coloff+E.cx;
-    erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
+    struct erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
 
     if (!row) {
         if (filerow == E.numrows) {
@@ -822,7 +821,7 @@ fixcursor:
 void editorDelChar(void) {
     int filerow = E.rowoff+E.cy;
     int filecol = E.coloff+E.cx;
-    erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
+    struct erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
 
     if (!row || (filecol == 0 && filerow == 0)) return;
     if (filecol == 0) {
@@ -942,7 +941,7 @@ void abFree(struct abuf *ab) {
  * starting from the logical state of the editor in the global state 'E'. */
 void editorRefreshScreen(void) {
     int y;
-    erow *r;
+    struct erow *r;
     char buf[32];
     struct abuf ab = ABUF_INIT;
 
@@ -1044,7 +1043,7 @@ void editorRefreshScreen(void) {
     int j;
     int cx = 1;
     int filerow = E.rowoff+E.cy;
-    erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
+    struct erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
     if (row) {
         for (j = E.coloff; j < (E.cx+E.coloff); j++) {
             if (j < row->size && row->chars[j] == TAB) cx += 7-((cx)%8);
@@ -1144,7 +1143,7 @@ void editorFind(int fd) {
             FIND_RESTORE_HL;
 
             if (match) {
-                erow *row = &E.row[current];
+                struct erow *row = &E.row[current];
                 last_match = current;
                 if (row->hl) {
                     saved_hl_line = current;
@@ -1174,7 +1173,7 @@ void editorMoveCursor(int key) {
     int filerow = E.rowoff+E.cy;
     int filecol = E.coloff+E.cx;
     int rowlen;
-    erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
+    struct erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
 
     switch(key) {
     case ARROW_LEFT:
