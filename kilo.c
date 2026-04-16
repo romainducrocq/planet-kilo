@@ -369,7 +369,7 @@ int getCursorPosition(int ifd, int ofd, int *rows, int *cols) {
     unsigned int i = 0;
 
     /* Report cursor location */
-    if (write(ofd, "\x1b[6n", 4) != 4) return -1;
+    if (write(ofd, (char[5]){ESC,'[','6','n'}, 4) != 4) return -1;
 
     /* Read the response: ESC [ rows ; cols R */
     while (i < sizeof(buf)-1) {
@@ -400,7 +400,7 @@ int getWindowSize(int ifd, int ofd, int *rows, int *cols) {
         if (retval == -1) goto failed;
 
         /* Go to right/bottom margin and get position. */
-        if (write(ofd,"\x1b[999C\x1b[999B",12) != 12) goto failed;
+        if (write(ofd,(char[13]){ESC,'[','9','9','9','C',ESC,'[','9','9','9','B'},12) != 12) goto failed;
         retval = getCursorPosition(ifd,ofd,rows,cols);
         if (retval == -1) goto failed;
 
@@ -945,8 +945,8 @@ void editorRefreshScreen(void) {
     char buf[32];
     struct abuf ab = ABUF_INIT;
 
-    abAppend(&ab,"\x1b[?25l",6); /* Hide cursor. */
-    abAppend(&ab,"\x1b[H",3); /* Go home. */
+    abAppend(&ab,(char[7]){ESC,'[','?','2','5','l'},6); /* Hide cursor. */
+    abAppend(&ab,(char[4]){ESC,'[','H'},3); /* Go home. */
     for (y = 0; y < E.screenrows; y++) {
         int filerow = E.rowoff+y;
 
@@ -963,7 +963,7 @@ void editorRefreshScreen(void) {
                 while(padding--) abAppend(&ab," ",1);
                 abAppend(&ab,welcome,welcomelen);
             } else {
-                abAppend(&ab,"~\x1b[0K\r\n",7);
+                abAppend(&ab,(char[8]){'~',ESC,'[','0','K','\r','\n'},7);
             }
             continue;
         }
@@ -980,16 +980,16 @@ void editorRefreshScreen(void) {
             for (j = 0; j < len; j++) {
                 if (hl[j] == HL_NONPRINT) {
                     char sym;
-                    abAppend(&ab,"\x1b[7m",4);
+                    abAppend(&ab,(char[5]){ESC,'[','7','m'},4);
                     if (c[j] <= 26)
                         sym = '@'+c[j];
                     else
                         sym = '?';
                     abAppend(&ab,&sym,1);
-                    abAppend(&ab,"\x1b[0m",4);
+                    abAppend(&ab,(char[5]){ESC,'[','0','m'},4);
                 } else if (hl[j] == HL_NORMAL) {
                     if (current_color != -1) {
-                        abAppend(&ab,"\x1b[39m",5);
+                        abAppend(&ab,(char[6]){ESC,'[','3','9','m'},5);
                         current_color = -1;
                     }
                     abAppend(&ab,c+j,1);
@@ -1005,14 +1005,14 @@ void editorRefreshScreen(void) {
                 }
             }
         }
-        abAppend(&ab,"\x1b[39m",5);
-        abAppend(&ab,"\x1b[0K",4);
+        abAppend(&ab,(char[6]){ESC,'[','3','9','m'},5);
+        abAppend(&ab,(char[5]){ESC,'[','0','K'},4);
         abAppend(&ab,"\r\n",2);
     }
 
     /* Create a two rows status. First row: */
-    abAppend(&ab,"\x1b[0K",4);
-    abAppend(&ab,"\x1b[7m",4);
+    abAppend(&ab,(char[5]){ESC,'[','0','K'},4);
+    abAppend(&ab,(char[5]){ESC,'[','7','m'},4);
     char status[80], rstatus[80];
     int len = snprintf(status, sizeof(status), "%.20s - %d lines %s",
         E.filename, E.numrows, E.dirty ? "(modified)" : "");
@@ -1029,10 +1029,10 @@ void editorRefreshScreen(void) {
             len++;
         }
     }
-    abAppend(&ab,"\x1b[0m\r\n",6);
+    abAppend(&ab,(char[7]){ESC,'[','0','m','\r','\n'},6);
 
     /* Second row depends on E.statusmsg and the status message update time. */
-    abAppend(&ab,"\x1b[0K",4);
+    abAppend(&ab,(char[5]){ESC,'[','0','K'},4);
     int msglen = strlen(E.statusmsg);
     if (msglen && time(NULL)-E.statusmsg_time < 5)
         abAppend(&ab,E.statusmsg,msglen <= E.screencols ? msglen : E.screencols);
@@ -1052,7 +1052,7 @@ void editorRefreshScreen(void) {
     }
     snprintf(buf,sizeof(buf),"\x1b[%d;%dH",E.cy+1,cx);
     abAppend(&ab,buf,strlen(buf));
-    abAppend(&ab,"\x1b[?25h",6); /* Show cursor. */
+    abAppend(&ab,(char[7]){ESC,'[','?','2','5','h'},6); /* Show cursor. */
     write(STDOUT_FILENO,ab.b,ab.len);
     abFree(&ab);
 }
