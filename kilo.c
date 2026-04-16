@@ -90,7 +90,7 @@ struct winsize {
     unsigned short int ws_xpixel;
     unsigned short int ws_ypixel;
 };
-extern int ioctl(int __fd, unsigned long int __request, ...) /* __THROW */;
+extern int ioctl(int __fd, unsigned long int __request, struct winsize* ws) /* __THROW */;
 #define TIOCGWINSZ 0x5413
 
 // #include <sys/time.h>
@@ -106,7 +106,8 @@ extern int close(int __fd);
 
 #include <stdarg.h>
 // #include <fcntl.h>
-extern int open(const char* __path, int __oflag, ...);
+typedef unsigned int mode_t;
+extern int open(const char* __path, int __oflag, mode_t __mode);
 #define O_RDWR 02
 #ifndef O_CREAT
 #define O_CREAT 0100 /* Not fcntl.  */
