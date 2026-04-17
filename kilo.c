@@ -39,21 +39,16 @@
 // #endif
 
 // #include <termios.h>
-typedef unsigned int tcflag_t;
-typedef unsigned char cc_t;
-typedef unsigned int speed_t;
 #define NCCS 32
 struct termios {
-    tcflag_t c_iflag; /* input mode flags */
-    tcflag_t c_oflag; /* output mode flags */
-    tcflag_t c_cflag; /* control mode flags */
-    tcflag_t c_lflag; /* local mode flags */
-    cc_t c_line;      /* line discipline */
-    cc_t c_cc[NCCS];  /* control characters */
-    speed_t c_ispeed; /* input speed */
-    speed_t c_ospeed; /* output speed */
-                      // #define _HAVE_STRUCT_TERMIOS_C_ISPEED 1
-                      // #define _HAVE_STRUCT_TERMIOS_C_OSPEED 1
+    unsigned int c_iflag;     /* input mode flags */
+    unsigned int c_oflag;     /* output mode flags */
+    unsigned int c_cflag;     /* control mode flags */
+    unsigned int c_lflag;     /* local mode flags */
+    unsigned char c_line;     /* line discipline */
+    unsigned char c_cc[NCCS]; /* control characters */
+    unsigned int c_ispeed;    /* input speed */
+    unsigned int c_ospeed;    /* output speed */
 };
 extern int tcsetattr(int __fd, int __optional_actions, const struct termios* __termios_p) /* __THROW */;
 extern int tcgetattr(int __fd, struct termios* __termios_p) /* __THROW */;
@@ -134,14 +129,12 @@ extern int ioctl(int __fd, unsigned long int __request, struct winsize* ws) /* _
 extern int isatty(int __fd) /* __THROW */;
 extern long read(int __fd, void* __buf, unsigned long __nbytes);
 extern long write(int __fd, const void* __buf, unsigned long __n);
-typedef long __off_t;
-extern int ftruncate(int __fd, __off_t __length) /* __THROW __wur */;
+extern int ftruncate(int __fd, long __length) /* __THROW __wur */;
 extern int close(int __fd);
 
 // #include <stdarg.h>
 // #include <fcntl.h>
-typedef unsigned int mode_t;
-extern int open(const char* __path, int __oflag, mode_t __mode);
+extern int open(const char* __path, int __oflag, unsigned int __mode);
 #define O_RDWR 2     /* 02 */
 #define O_CREAT 64   /* 0100 */
 #define COPYMODE 420 /* 0644 */
@@ -182,10 +175,6 @@ struct erow {
     int hl_oc;         /* Row had open comment at end in last syntax highlight
                           check. */
 };
-
-// typedef struct hlcolor {
-//     int r,g,b;
-// } hlcolor;
 
 struct editorConfig {
     int cx, cy;       /* Cursor x and y position in characters */
