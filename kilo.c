@@ -79,18 +79,17 @@ extern int isspace(int c);
 // #include <stdio.h>
 #define NULL 0
 struct FILE;
-extern struct FILE* stderr;
+extern struct FILE* get_stderr(void);
 extern struct FILE* fopen(const char* filename, const char* mode);
 extern int fclose(struct FILE* stream);
 extern void perror(const char* s);
+extern int print(const char* format);
+extern int fprint(struct FILE* stream, const char* format);
 // POSIX
 extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
 
 // TODO
-extern int printf(const char* format, ...);
-extern int fprintf(struct FILE* stream, const char* format, ...);
 extern int snprintf(char* s, unsigned long n, const char* format, ...);
-extern int sscanf(const char* s, const char* format, ...);
 
 // #include <stdlib.h>
 extern int atexit(void (*func)(void)); // TODO
@@ -392,6 +391,12 @@ int editorReadKey(int fd) {
     }
 }
 
+static int sscanf2Int(const char* s, const char* format, int* d1, int* d2) {
+    // TODO
+    extern int sscanf(const char* s, const char* format, ...); // int* d1, int* d2
+    return sscanf(s, format, d1, d2);
+}
+
 /* Use the ESC [6n escape sequence to query the horizontal cursor position
  * and return it. On error -1 is returned, on success the position of the
  * cursor is stored at *rows and *cols and 0 is returned. */
@@ -416,7 +421,7 @@ int getCursorPosition(int ifd, int ofd, int* rows, int* cols) {
     /* Parse it. */
     if (buf[0] != ESC || buf[1] != '[')
         return -1;
-    if (sscanf(buf + 2, "%d;%d", rows, cols) != 2)
+    if (sscanf2Int(buf + 2, "%d;%d", rows, cols) != 2)
         return -1;
     return 0;
 }
@@ -684,7 +689,7 @@ void editorUpdateRow(struct erow* row) {
 
     unsigned long long allocsize = (unsigned long long)row->size + tabs * 8 + nonprint * 9 + 1;
     if (allocsize > UINT32_MAX) {
-        printf("Some line of the edited file is too long for kilo\n");
+        print("Some line of the edited file is too long for kilo\n");
         exit(1);
     }
 
@@ -1458,7 +1463,7 @@ void initEditor(void) {
 
 int main(int argc, char** argv) {
     if (argc != 2) {
-        fprintf(stderr, "Usage: kilo <filename>\n");
+        fprint(get_stderr(), "Usage: kilo <filename>\n");
         exit(1);
     }
 
