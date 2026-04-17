@@ -33,7 +33,6 @@
  */
 
 #define KILO_VERSION "0.0.1"
-#define NULTERM 0
 
 // #ifdef __linux__
 // #define _POSIX_C_SOURCE 200809L
@@ -82,8 +81,29 @@ extern int isspace(int c);
 // #include <stdint.h>
 #define UINT32_MAX (4294967295U)
 
-#include <stdio.h>
-#include <stdlib.h>
+// #include <stdio.h>
+#define NULL 0
+struct FILE;
+extern struct FILE* stderr;
+extern struct FILE* fopen(const char* filename, const char* mode);
+extern int fclose(struct FILE* stream);
+extern void perror(const char* s);
+// POSIX
+extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
+
+// TODO
+extern int printf(const char* format, ...);
+extern int fprintf(struct FILE* stream, const char* format, ...);
+extern int snprintf(char* s, unsigned long n, const char* format, ...);
+extern int sscanf(const char* s, const char* format, ...);
+
+// #include <stdlib.h>
+extern int atexit(void (*func)(void)); // TODO
+extern void exit(int status);
+extern void* realloc(void* ptr, unsigned long size);
+extern void free(void* ptr);
+extern void* malloc(unsigned long size);
+
 // #include <string.h>
 extern void* memcpy(void* s1, const void* s2, unsigned long n);
 extern void* memmove(void* s1, const void* s2, unsigned long n);
@@ -112,8 +132,8 @@ extern int ioctl(int __fd, unsigned long int __request, struct winsize* ws) /* _
 #define STDIN_FILENO 0  /* Standard input.  */
 #define STDOUT_FILENO 1 /* Standard output.  */
 extern int isatty(int __fd) /* __THROW */;
-extern ssize_t read(int __fd, void* __buf, size_t __nbytes);
-extern ssize_t write(int __fd, const void* __buf, size_t __n);
+extern long read(int __fd, void* __buf, unsigned long __nbytes);
+extern long write(int __fd, const void* __buf, unsigned long __n);
 typedef long __off_t;
 extern int ftruncate(int __fd, __off_t __length) /* __THROW __wur */;
 extern int close(int __fd);
@@ -402,7 +422,7 @@ int getCursorPosition(int ifd, int ofd, int* rows, int* cols) {
             break;
         i++;
     }
-    buf[i] = NULTERM;
+    buf[i] = NULL;
 
     /* Parse it. */
     if (buf[0] != ESC || buf[1] != '[')
@@ -454,7 +474,7 @@ failed:
 
 /* ====================== Syntax highlight color scheme  ==================== */
 
-int is_separator(int c) { return c == NULTERM || isspace(c) || strchr(",.()+-/*=~%[];", c) != NULL; }
+int is_separator(int c) { return c == NULL || isspace(c) || strchr(",.()+-/*=~%[];", c) != NULL; }
 
 /* Return true if the specified row last char is part of a multi line comment
  * that starts at this row or at one before, and does not end at the end
@@ -649,7 +669,7 @@ void editorSelectSyntaxHighlight(char* filename) {
             char* p;
             int patlen = strlen(s->filematch[i]);
             if ((p = strstr(filename, s->filematch[i])) != NULL) {
-                if (s->filematch[i][0] != '.' || p[patlen] == NULTERM) {
+                if (s->filematch[i][0] != '.' || p[patlen] == NULL) {
                     E.syntax = s;
                     return;
                 }
@@ -692,7 +712,7 @@ void editorUpdateRow(struct erow* row) {
         }
     }
     row->rsize = idx;
-    row->render[idx] = NULTERM;
+    row->render[idx] = NULL;
 
     /* Update the syntax highlighting attributes of the row. */
     editorUpdateSyntax(row);
@@ -700,7 +720,7 @@ void editorUpdateRow(struct erow* row) {
 
 /* Insert a row at the specified position, shifting the other rows on the bottom
  * if required. */
-void editorInsertRow(int at, char* s, size_t len) {
+void editorInsertRow(int at, char* s, unsigned long len) {
     if (at > E.numrows)
         return;
     E.row = realloc(E.row, sizeof(struct erow) * (E.numrows + 1));
@@ -767,7 +787,7 @@ char* editorRowsToString(int* buflen) {
         *p = '\n';
         p++;
     }
-    *p = NULTERM;
+    *p = NULL;
     return buf;
 }
 
@@ -781,7 +801,7 @@ void editorRowInsertChar(struct erow* row, int at, int c) {
         /* In the next line +2 means: new char and null term. */
         row->chars = realloc(row->chars, row->size + padlen + 2);
         memset(row->chars + row->size, ' ', padlen);
-        row->chars[row->size + padlen + 1] = NULTERM;
+        row->chars[row->size + padlen + 1] = NULL;
         row->size += padlen + 1;
     }
     else {
@@ -797,11 +817,11 @@ void editorRowInsertChar(struct erow* row, int at, int c) {
 }
 
 /* Append the string 's' at the end of a row */
-void editorRowAppendString(struct erow* row, char* s, size_t len) {
+void editorRowAppendString(struct erow* row, char* s, unsigned long len) {
     row->chars = realloc(row->chars, row->size + len + 1);
     memcpy(row->chars + row->size, s, len);
     row->size += len;
-    row->chars[row->size] = NULTERM;
+    row->chars[row->size] = NULL;
     editorUpdateRow(row);
     E.dirty++;
 }
@@ -862,7 +882,7 @@ void editorInsertNewline(void) {
         /* We are in the middle of a line. Split it between two rows. */
         editorInsertRow(filerow + 1, row->chars + filecol, row->size - filecol);
         row = &E.row[filerow];
-        row->chars[filecol] = NULTERM;
+        row->chars[filecol] = NULL;
         row->size = filecol;
         editorUpdateRow(row);
     }
@@ -918,11 +938,11 @@ void editorDelChar(void) {
 /* Load the specified program in the editor memory and returns 0 on success
  * or 1 on error. */
 int editorOpen(char* filename) {
-    FILE* fp;
+    struct FILE* fp;
 
     E.dirty = 0;
     free(E.filename);
-    size_t fnlen = strlen(filename) + 1;
+    unsigned long fnlen = strlen(filename) + 1;
     E.filename = malloc(fnlen);
     memcpy(E.filename, filename, fnlen);
 
@@ -936,11 +956,11 @@ int editorOpen(char* filename) {
     }
 
     char* line = NULL;
-    size_t linecap = 0;
-    ssize_t linelen;
+    unsigned long linecap = 0;
+    long linelen;
     while ((linelen = getline(&line, &linecap, fp)) != -1) {
         if (linelen && (line[linelen - 1] == '\n' || line[linelen - 1] == '\r'))
-            line[--linelen] = NULTERM;
+            line[--linelen] = NULL;
         editorInsertRow(E.numrows, line, linelen);
     }
     free(line);
@@ -1181,7 +1201,7 @@ void editorFind(int fd) {
         int c = editorReadKey(fd);
         if (c == DEL_KEY || c == CTRL_H || c == BACKSPACE) {
             if (qlen != 0)
-                query[--qlen] = NULTERM;
+                query[--qlen] = NULL;
             last_match = -1;
         }
         else if (c == ESC || c == ENTER) {
@@ -1204,7 +1224,7 @@ void editorFind(int fd) {
         else if (isprint(c)) {
             if (qlen < KILO_QUERY_LEN) {
                 query[qlen++] = c;
-                query[qlen] = NULTERM;
+                query[qlen] = NULL;
                 last_match = -1;
             }
         }
