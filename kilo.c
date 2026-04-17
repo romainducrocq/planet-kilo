@@ -187,8 +187,8 @@ struct erow {
 };
 
 struct editorConfig {
-    int cx;           /* Cursor x and y position in characters */
-    int cy;       
+    int cx; /* Cursor x and y position in characters */
+    int cy;
     int rowoff;       /* Offset of row displayed. */
     int coloff;       /* Offset of column displayed. */
     int screenrows;   /* Number of rows that we can show */
@@ -295,9 +295,7 @@ void disableRawMode(int fd) {
 /* Called at exit to avoid remaining in raw mode. */
 void editorAtExit(void) { disableRawMode(STDIN_FILENO); }
 
-void atexit_func(void) {
-    editorAtExit();
-}
+void atexit_func(void) { editorAtExit(); }
 
 /* Raw mode: 1960 magic shit. */
 int enableRawMode(int fd) {
