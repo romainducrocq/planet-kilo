@@ -72,7 +72,12 @@ extern int isdigit(int c);
 extern int isprint(int c);
 extern int isspace(int c);
 
-#include <errno.h>
+// #include <errno.h>
+#define ENOENT 2  /* No such file or directory */
+#define ENOTTY 25 /* Not a typewriter */
+extern int get_errno(void);
+extern void set_errno(int value);
+
 // #include <stdint.h>
 #define UINT32_MAX (4294967295U)
 
@@ -317,7 +322,7 @@ int enableRawMode(int fd) {
     return 0;
 
 fatal:
-    errno = ENOTTY;
+    set_errno(ENOTTY);
     return -1;
 }
 
@@ -942,7 +947,7 @@ int editorOpen(char* filename) {
 
     fp = fopen(filename, "r");
     if (!fp) {
-        if (errno != ENOENT) {
+        if (get_errno() != ENOENT) {
             perror("Opening file");
             exit(1);
         }
@@ -988,7 +993,7 @@ writeerr:
     free(buf);
     if (fd != -1)
         close(fd);
-    editorSetStatusMessageStr("Can't save! I/O error: %s", strerror(errno));
+    editorSetStatusMessageStr("Can't save! I/O error: %s", strerror(get_errno()));
     return 1;
 }
 
