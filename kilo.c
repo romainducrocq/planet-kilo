@@ -187,7 +187,8 @@ struct erow {
 };
 
 struct editorConfig {
-    int cx, cy;       /* Cursor x and y position in characters */
+    int cx;           /* Cursor x and y position in characters */
+    int cy;       
     int rowoff;       /* Offset of row displayed. */
     int coloff;       /* Offset of column displayed. */
     int screenrows;   /* Number of rows that we can show */
@@ -340,7 +341,8 @@ fatal:
  * escape sequences. */
 int editorReadKey(int fd) {
     int nread;
-    char c, seq[3];
+    char c;
+    char seq[3];
     while ((nread = read(fd, &c, 1)) == 0)
         ;
     if (nread == -1)
@@ -449,7 +451,9 @@ int getWindowSize(int ifd, int ofd, int* rows, int* cols) {
 
     if (ioctl(1, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
         /* ioctl() failed. Try to query the terminal itself. */
-        int orig_row, orig_col, retval;
+        int orig_row;
+        int orig_col;
+        int retval;
 
         /* Get the initial position so we can restore it later. */
         retval = getCursorPosition(ifd, ofd, &orig_row, &orig_col);
@@ -504,7 +508,10 @@ void editorUpdateSyntax(struct erow* row) {
     if (E.syntax == NULL)
         return; /* No syntax, everything is HL_NORMAL. */
 
-    int i, prev_sep, in_string, in_comment;
+    int i;
+    int prev_sep;
+    int in_string;
+    int in_comment;
     char* p;
     char** keywords = E.syntax->keywords;
     char* scs = E.syntax->singleline_comment_start;
@@ -692,8 +699,10 @@ void editorSelectSyntaxHighlight(char* filename) {
 
 /* Update the rendered version and the syntax highlight of a row. */
 void editorUpdateRow(struct erow* row) {
-    unsigned int tabs = 0, nonprint = 0;
-    int j, idx;
+    unsigned int tabs = 0;
+    unsigned int nonprint = 0;
+    int j;
+    int idx;
 
     /* Create a version of the row we can directly print on the screen,
      * respecting tabs, substituting non printable characters with '?'. */
@@ -1200,8 +1209,10 @@ void editorFind(int fd) {
     while (0)
 
     /* Save the cursor position in order to restore it later. */
-    int saved_cx = E.cx, saved_cy = E.cy;
-    int saved_coloff = E.coloff, saved_rowoff = E.rowoff;
+    int saved_cx = E.cx;
+    int saved_cy = E.cy;
+    int saved_coloff = E.coloff;
+    int saved_rowoff = E.rowoff;
 
     while (1) {
         editorSetStatusMessageStr("Search: %s (Use ESC/Arrows/Enter)", query);
@@ -1244,7 +1255,8 @@ void editorFind(int fd) {
         if (find_next) {
             char* match = NULL;
             int match_offset = 0;
-            int i, current = last_match;
+            int i;
+            int current = last_match;
 
             for (i = 0; i < E.numrows; i++) {
                 current += find_next;
