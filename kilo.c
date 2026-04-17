@@ -809,7 +809,8 @@ void editorDelRow(int at) {
  * integer pointed by 'buflen' with the size of the string, escluding
  * the final nulterm. */
 char* editorRowsToString(int* buflen) {
-    char *buf = NULL, *p;
+    char *buf = NULL;
+    char *p;
     int totlen = 0;
     int j;
 
@@ -819,7 +820,7 @@ char* editorRowsToString(int* buflen) {
     *buflen = totlen;
     totlen++; /* Also make space for nulterm */
 
-    p = buf = malloc(totlen);
+    p = (buf = malloc(totlen));
     for (j = 0; j < E.numrows; j++) {
         memcpy(p, E.row[j].chars, E.row[j].size);
         p += E.row[j].size;
