@@ -256,8 +256,8 @@ void editorSetStatusMessageStr(const char* fmt, const char* s);
  * There is no support to highlight patterns currently. */
 
 /* C / C++ */
-char* C_HL_extensions[] = {".c", ".h", ".cpp", ".hpp", ".cc", NULL};
-char* C_HL_keywords[] = {
+char* C_HL_extensions[6] = {".c", ".h", ".cpp", ".hpp", ".cc", NULL};
+char* C_HL_keywords[82] = {
     /* C Keywords */
     "auto", "break", "case", "continue", "default", "do", "else", "enum", "extern", "for", "goto", "if", "register",
     "return", "sizeof", "static", "struct", "switch", "typedef", "union", "volatile", "while", "NULL",
@@ -275,7 +275,7 @@ char* C_HL_keywords[] = {
 
 /* Here we define an array of syntax highlights by extensions, keywords,
  * comments delimiters and flags. */
-struct editorSyntax HLDB[] = {{/* C / C++ */
+struct editorSyntax HLDB[1] = {{/* C / C++ */
     C_HL_extensions, C_HL_keywords, "//", "/*", "*/", HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS}};
 
 #define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
