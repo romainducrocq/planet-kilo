@@ -1070,6 +1070,9 @@ void editorRefreshScreen(void) {
     int y;
     struct erow* r;
     char buf[32];
+    char sc[2] = {0};
+    char sd1[20] = {0};
+    char sd2[20] = {0};
     struct abuf ab = ABUF_INIT;
 
     abAppend(&ab, (char[7]) {ESC, '[', '?', '2', '5', 'l'}, 6); /* Hide cursor. */
@@ -1129,7 +1132,7 @@ void editorRefreshScreen(void) {
                     int color = editorSyntaxToColor(hl[j]);
                     if (color != current_color) {
                         char buf[16];
-                        int clen = snprintf(buf, sizeof(buf), "%c[%dm", ESC, color);
+                        int clen = snprintf(buf, sizeof(buf), fmt4(ctostr(sc, ESC), "[", ltostr(sd1, color), "m"));
                         current_color = color;
                         abAppend(&ab, buf, clen);
                     }
@@ -1145,13 +1148,11 @@ void editorRefreshScreen(void) {
     /* Create a two rows status. First row: */
     abAppend(&ab, (char[5]) {ESC, '[', '0', 'K'}, 4);
     abAppend(&ab, (char[5]) {ESC, '[', '7', 'm'}, 4);
-    char s[20] = {0};
-    char rs[20] = {0};
     char status[80];
     char rstatus[80];
     int len = snprint(
-        status, sizeof(status), fmt5(E.filename, " - ", ltostr(s, E.numrows), " lines ", E.dirty ? "(modified)" : ""));
-    int rlen = snprint(rstatus, sizeof(rstatus), fmt3(ltostr(rs, E.rowoff + E.cy + 1), "/", s));
+        status, sizeof(status), fmt5(E.filename, " - ", ltostr(sd1, E.numrows), " lines ", E.dirty ? "(modified)" : ""));
+    int rlen = snprint(rstatus, sizeof(rstatus), fmt3(ltostr(sd2, E.rowoff + E.cy + 1), "/", sd1));
     if (len > E.screencols)
         len = E.screencols;
     abAppend(&ab, status, len);
@@ -1187,7 +1188,7 @@ void editorRefreshScreen(void) {
             cx++;
         }
     }
-    snprintf(buf, sizeof(buf), "%c[%d;%dH", ESC, E.cy + 1, cx);
+    snprintf(buf, sizeof(buf), fmt6(ctostr(sc, ESC), "[", ltostr(sd1, E.cy + 1), ";", ltostr(sd2, cx), "H"));
     abAppend(&ab, buf, strlen(buf));
     abAppend(&ab, (char[7]) {ESC, '[', '?', '2', '5', 'h'}, 6); /* Show cursor. */
     write(STDOUT_FILENO, ab.b, ab.len);
