@@ -119,10 +119,10 @@ extern unsigned long time(unsigned long* timer);
 // #include <sys/types.h>
 // #include <sys/ioctl.h>
 struct winsize {
-    unsigned short int ws_row;
-    unsigned short int ws_col;
-    unsigned short int ws_xpixel;
-    unsigned short int ws_ypixel;
+    unsigned char ws_row[2];
+    unsigned char ws_col[2];
+    unsigned char ws_xpixel[2];
+    unsigned char ws_ypixel[2];
 };
 extern int ioctl(int __fd, unsigned long int __request, struct winsize* ws) /* __THROW */;
 #define TIOCGWINSZ 21523 /* 0x5413 */
@@ -447,7 +447,7 @@ int getCursorPosition(int ifd, int ofd, int* rows, int* cols) {
 int getWindowSize(int ifd, int ofd, int* rows, int* cols) {
     struct winsize ws;
 
-    if (ioctl(1, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+    if (ioctl(1, TIOCGWINSZ, &ws) == -1 || (ws.ws_col[0] | ws.ws_col[1]) == 0) {
         /* ioctl() failed. Try to query the terminal itself. */
         int orig_row;
         int orig_col;
@@ -474,8 +474,8 @@ int getWindowSize(int ifd, int ofd, int* rows, int* cols) {
         return 0;
     }
     else {
-        *cols = ws.ws_col;
-        *rows = ws.ws_row;
+        *cols = ws.ws_col[0] + ((int)ws.ws_col[1] << 8);
+        *rows = ws.ws_row[0] + ((int)ws.ws_row[1] << 8);
         return 0;
     }
 
