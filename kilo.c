@@ -143,7 +143,12 @@ extern int open(const char* __path, int __oflag, unsigned int __mode);
 #define O_CREAT 64   /* 0100 */
 #define COPYMODE 420 /* 0644 */
 
-#include <signal.h>
+// #include <signal.h>
+/* Nonstandard signals found in all modern POSIX systems
+   (including both BSD and Linux).  */
+#define SIGWINCH 28 /* Window size change (4.3 BSD, Sun).  */
+void signal_func(int sig);
+extern int signal_f(int sig);
 
 /* Syntax highlight types */
 #define HL_NORMAL 0
@@ -192,7 +197,7 @@ struct editorConfig {
     int dirty;        /* File modified but not saved. */
     char* filename;   /* Currently open filename */
     char statusmsg[80];
-    time_t statusmsg_time;
+    unsigned long statusmsg_time;
     struct editorSyntax* syntax; /* Current syntax highlight, or NULL. */
 };
 
@@ -1443,13 +1448,19 @@ void updateWindowSize(void) {
     E.screenrows -= 2; /* Get room for status bar. */
 }
 
-void handleSigWinCh(int unused __attribute__((unused))) {
+void handleSigWinCh(void) {
     updateWindowSize();
     if (E.cy > E.screenrows)
         E.cy = E.screenrows - 1;
     if (E.cx > E.screencols)
         E.cx = E.screencols - 1;
     editorRefreshScreen();
+}
+
+void signal_func(int sig) {
+    if (sig == SIGWINCH) {
+        handleSigWinCh();
+    }
 }
 
 void initEditor(void) {
@@ -1463,7 +1474,7 @@ void initEditor(void) {
     E.filename = NULL;
     E.syntax = NULL;
     updateWindowSize();
-    signal(SIGWINCH, handleSigWinCh);
+    signal_f(SIGWINCH);
 }
 
 int main(int argc, char** argv) {
