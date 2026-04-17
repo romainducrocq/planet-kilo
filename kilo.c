@@ -105,7 +105,7 @@ struct winsize {
     unsigned short int ws_ypixel;
 };
 extern int ioctl(int __fd, unsigned long int __request, struct winsize* ws) /* __THROW */;
-#define TIOCGWINSZ 0x5413
+#define TIOCGWINSZ 21523 /* 0x5413 */
 
 // #include <sys/time.h>
 // #include <unistd.h>
@@ -122,10 +122,9 @@ extern int close(int __fd);
 // #include <fcntl.h>
 typedef unsigned int mode_t;
 extern int open(const char* __path, int __oflag, mode_t __mode);
-#define O_RDWR 02
-#ifndef O_CREAT
-#define O_CREAT 0100 /* Not fcntl.  */
-#endif
+#define O_RDWR 2     /* 02 */
+#define O_CREAT 64   /* 0100 */
+#define COPYMODE 420 /* 0644 */
 
 #include <signal.h>
 
@@ -954,7 +953,7 @@ int editorOpen(char* filename) {
 int editorSave(void) {
     int len;
     char* buf = editorRowsToString(&len);
-    int fd = open(E.filename, O_RDWR | O_CREAT, 420); /* 0644 */
+    int fd = open(E.filename, O_RDWR | O_CREAT, COPYMODE);
     if (fd == -1)
         goto writeerr;
 
