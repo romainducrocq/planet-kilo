@@ -95,6 +95,29 @@ extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
 
 // TODO
 extern int snprintf(char* s, unsigned long n, const char* format, ...);
+extern int snprint(char* s, unsigned long n, const char* format);
+
+extern const char* fmt1(const char* s1);
+extern const char* fmt2(const char* s1, const char* s2);
+extern const char* fmt3(const char* s1, const char* s2, const char* s3);
+extern const char* fmt4(const char* s1, const char* s2, const char* s3, const char* s4);
+extern const char* fmt5(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5);
+extern const char* fmt6(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6);
+extern const char* fmt7(
+    const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6, const char* s7);
+extern const char* fmt8(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6,
+    const char* s7, const char* s8);
+extern const char* fmt9(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6,
+    const char* s7, const char* s8, const char* s9);
+extern const char* fmt10(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6,
+    const char* s7, const char* s8, const char* s9, const char* s10);
+
+extern const char* ctostr(const char* s, char value);
+extern const char* dtostr(const char* s, double value, int precision);
+extern const char* ltostr(const char* s, long value);
+extern const char* ultostr(const char* s, unsigned long value);
+extern const char* ptostr(const char* s, void* value);
+extern const char* xtostr(const char* s, int value, int precision);
 
 // #include <stdlib.h>
 void atexit_func(void);
@@ -1121,10 +1144,13 @@ void editorRefreshScreen(void) {
     /* Create a two rows status. First row: */
     abAppend(&ab, (char[5]) {ESC, '[', '0', 'K'}, 4);
     abAppend(&ab, (char[5]) {ESC, '[', '7', 'm'}, 4);
-    char status[80], rstatus[80];
-    int len =
-        snprintf(status, sizeof(status), "%.20s - %d lines %s", E.filename, E.numrows, E.dirty ? "(modified)" : "");
-    int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", E.rowoff + E.cy + 1, E.numrows);
+    char s[20] = {0};
+    char rs[20] = {0};
+    char status[80];
+    char rstatus[80];
+    int len = snprint(
+        status, sizeof(status), fmt5(E.filename, " - ", ltostr(s, E.numrows), " lines ", E.dirty ? "(modified)" : ""));
+    int rlen = snprint(rstatus, sizeof(rstatus), fmt3(ltostr(rs, E.rowoff + E.cy + 1), "/", s));
     if (len > E.screencols)
         len = E.screencols;
     abAppend(&ab, status, len);
