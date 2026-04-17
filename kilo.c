@@ -73,13 +73,29 @@ extern int tcgetattr(int __fd, struct termios* __termios_p) /* __THROW */;
 #define VTIME 5
 #define VMIN 6
 
-#include <ctype.h>
+// #include <ctype.h>
+extern int isdigit(int c);
+extern int isprint(int c);
+extern int isspace(int c);
+
 #include <errno.h>
-#include <stdint.h>
+// #include <stdint.h>
+#define UINT32_MAX (4294967295U)
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
+// #include <string.h>
+extern void* memcpy(void* s1, const void* s2, unsigned long n);
+extern void* memmove(void* s1, const void* s2, unsigned long n);
+extern int memcmp(const void* s1, const void* s2, unsigned long n);
+extern char* strchr(const char* s, int c);
+extern char* strstr(const char* s1, const char* s2);
+extern void* memset(void* s, int c, unsigned long n);
+extern char* strerror(int errnum);
+extern unsigned long strlen(const char* s);
+
+// #include <time.h>
+extern unsigned long time(unsigned long* timer);
 // #include <sys/types.h>
 // #include <sys/ioctl.h>
 struct winsize {
@@ -1119,7 +1135,7 @@ void editorRefreshScreen(void) {
 /* Set an editor status message for the second line of the status, at the
  * end of the screen. */
 void editorSetStatusMessage(const char* msg) {
-    snprintf(E.statusmsg, sizeof(E.statusmsg), msg);
+    snprintf(E.statusmsg, sizeof(E.statusmsg), "%s", msg);
     E.statusmsg_time = time(NULL);
 }
 
