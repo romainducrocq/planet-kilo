@@ -97,7 +97,8 @@ extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
 extern int snprintf(char* s, unsigned long n, const char* format, ...);
 
 // #include <stdlib.h>
-extern int atexit(void (*func)(void)); // TODO
+void atexit_func(void);
+extern int atexit_f(void);
 extern void exit(int status);
 extern void* realloc(void* ptr, unsigned long size);
 extern void free(void* ptr);
@@ -293,6 +294,10 @@ void disableRawMode(int fd) {
 /* Called at exit to avoid remaining in raw mode. */
 void editorAtExit(void) { disableRawMode(STDIN_FILENO); }
 
+void atexit_func(void) {
+    editorAtExit();
+}
+
 /* Raw mode: 1960 magic shit. */
 int enableRawMode(int fd) {
     struct termios raw;
@@ -301,7 +306,7 @@ int enableRawMode(int fd) {
         return 0; /* Already enabled. */
     if (!isatty(STDIN_FILENO))
         goto fatal;
-    atexit(editorAtExit);
+    atexit_f();
     if (tcgetattr(fd, &orig_termios) == -1)
         goto fatal;
 
