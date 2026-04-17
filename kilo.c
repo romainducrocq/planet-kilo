@@ -490,9 +490,12 @@ int getWindowSize(int ifd, int ofd, int* rows, int* cols) {
 
         /* Restore position. */
         char seq[32];
-        snprintf(seq, 32, "%c[%d;%dH", ESC, orig_row, orig_col);
+        char sd1[20] = {0};
+        char sd2[20] = {0};
+        snprint(seq, 32, fmt5((char[3]) {ESC, '['}, ltostr(sd1, orig_row), ";", ltostr(sd2, orig_col), "H"));
         if (write(ofd, seq, strlen(seq)) == -1) {
             /* Can't recover... */
+            ;
         }
         return 0;
     }
@@ -809,8 +812,8 @@ void editorDelRow(int at) {
  * integer pointed by 'buflen' with the size of the string, escluding
  * the final nulterm. */
 char* editorRowsToString(int* buflen) {
-    char *buf = NULL;
-    char *p;
+    char* buf = NULL;
+    char* p;
     int totlen = 0;
     int j;
 
@@ -1070,7 +1073,6 @@ void editorRefreshScreen(void) {
     int y;
     struct erow* r;
     char buf[32];
-    char sc[2] = {0};
     char sd1[20] = {0};
     char sd2[20] = {0};
     struct abuf ab = ABUF_INIT;
@@ -1083,8 +1085,8 @@ void editorRefreshScreen(void) {
         if (filerow >= E.numrows) {
             if (E.numrows == 0 && y == E.screenrows / 3) {
                 char welcome[80];
-                int welcomelen = snprintf(welcome, sizeof(welcome), "Kilo editor -- version %s%s", KILO_VERSION,
-                    (char[7]) {ESC, '[', '0', 'K', '\r', '\n'});
+                int welcomelen = snprint(welcome, sizeof(welcome),
+                    fmt3("Kilo editor -- version ", KILO_VERSION, (char[7]) {ESC, '[', '0', 'K', '\r', '\n'}));
                 int padding = (E.screencols - welcomelen) / 2;
                 if (padding) {
                     abAppend(&ab, "~", 1);
@@ -1132,7 +1134,7 @@ void editorRefreshScreen(void) {
                     int color = editorSyntaxToColor(hl[j]);
                     if (color != current_color) {
                         char buf[16];
-                        int clen = snprintf(buf, sizeof(buf), fmt4(ctostr(sc, ESC), "[", ltostr(sd1, color), "m"));
+                        int clen = snprint(buf, sizeof(buf), fmt3((char[3]) {ESC, '['}, ltostr(sd1, color), "m"));
                         current_color = color;
                         abAppend(&ab, buf, clen);
                     }
@@ -1150,8 +1152,8 @@ void editorRefreshScreen(void) {
     abAppend(&ab, (char[5]) {ESC, '[', '7', 'm'}, 4);
     char status[80];
     char rstatus[80];
-    int len = snprint(
-        status, sizeof(status), fmt5(E.filename, " - ", ltostr(sd1, E.numrows), " lines ", E.dirty ? "(modified)" : ""));
+    int len = snprint(status, sizeof(status),
+        fmt5(E.filename, " - ", ltostr(sd1, E.numrows), " lines ", E.dirty ? "(modified)" : ""));
     int rlen = snprint(rstatus, sizeof(rstatus), fmt3(ltostr(sd2, E.rowoff + E.cy + 1), "/", sd1));
     if (len > E.screencols)
         len = E.screencols;
@@ -1188,7 +1190,7 @@ void editorRefreshScreen(void) {
             cx++;
         }
     }
-    snprintf(buf, sizeof(buf), fmt6(ctostr(sc, ESC), "[", ltostr(sd1, E.cy + 1), ";", ltostr(sd2, cx), "H"));
+    snprint(buf, sizeof(buf), fmt5((char[3]) {ESC, '['}, ltostr(sd1, E.cy + 1), ";", ltostr(sd2, cx), "H"));
     abAppend(&ab, buf, strlen(buf));
     abAppend(&ab, (char[7]) {ESC, '[', '?', '2', '5', 'h'}, 6); /* Show cursor. */
     write(STDOUT_FILENO, ab.b, ab.len);
