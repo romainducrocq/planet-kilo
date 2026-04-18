@@ -1,35 +1,6 @@
 // Kilo -- A very simple editor in less than 1-kilo lines of code (as counted
 //         by "cloc"). Does not depend on libcurses, directly emits VT100
 //         escapes on the terminal.
-//
-// -----------------------------------------------------------------------
-//
-// Copyright (C) 2016 Salvatore Sanfilippo <antirez at gmail dot com>
-//
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//  *  Redistributions of source code must retain the above copyright
-//     notice, this list of conditions and the following disclaimer.
-//
-//  *  Redistributions in binary form must reproduce the above copyright
-//     notice, this list of conditions and the following disclaimer in the
-//     documentation and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const char* KILO_VERSION = "0.0.1"; // DEFINE
 
@@ -178,8 +149,8 @@ struct termios {
     unsigned int c_ispeed;  // input speed
     unsigned int c_ospeed;  // output speed
 };
-extern int tcsetattr(int __fd, int __optional_actions, const struct termios* __termios_p);
-extern int tcgetattr(int __fd, struct termios* __termios_p);
+extern int tcsetattr(int fd, int optional_actions, const struct termios* termios_p);
+extern int tcgetattr(int fd, struct termios* termios_p);
 const int TCSAFLUSH = 2;  // DEFINE
 const int BRKINT = 2;     // DEFINE // 0000002 Signal interrupt on break.
 const int INPCK = 16;     // DEFINE // 0000020 Enable input parity check.
@@ -210,20 +181,20 @@ struct winsize {
     unsigned char ws_xpixel[2];
     unsigned char ws_ypixel[2];
 };
-extern int ioctl(int __fd, unsigned long int __request, struct winsize* ws);
+extern int ioctl(int fd, unsigned long int request, struct winsize* ws);
 const int TIOCGWINSZ = 21523; // DEFINE // 0x5413
 
 // unistd.h
-extern int isatty(int __fd);
-extern long read(int __fd, void* __buf, unsigned long __nbytes);
-extern long write(int __fd, const void* __buf, unsigned long __n);
-extern int ftruncate(int __fd, long __length);
-extern int close(int __fd);
+extern int isatty(int fd);
+extern long read(int fd, void* buf, unsigned long nbytes);
+extern long write(int fd, const void* buf, unsigned long n);
+extern int ftruncate(int fd, long length);
+extern int close(int fd);
 const int STDIN_FILENO = 0;  // DEFINE // Standard input.
 const int STDOUT_FILENO = 1; // DEFINE // Standard output.
 
 // fcntl.h
-extern int open(const char* __path, int __oflag, unsigned int __mode);
+extern int open(const char* path, int oflag, unsigned int mode);
 const int O_RDWR = 2;     // DEFINE 02
 const int O_CREAT = 64;   // DEFINE 0100
 const int COPYMODE = 420; // DEFINE 0644
@@ -1536,3 +1507,32 @@ int main(int argc, char** argv) {
     }
     return 0;
 }
+
+// -----------------------------------------------------------------------
+//
+// Copyright (C) 2016 Salvatore Sanfilippo <antirez at gmail dot com>
+//
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//  *  Redistributions of source code must retain the above copyright
+//     notice, this list of conditions and the following disclaimer.
+//
+//  *  Redistributions in binary form must reproduce the above copyright
+//     notice, this list of conditions and the following disclaimer in the
+//     documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
