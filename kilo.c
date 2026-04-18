@@ -1,8 +1,11 @@
+// This is a port of the (very simple) Kilo text editor by antirez, to planet
+// https://github.com/antirez/kilo - see copyright at the bottom of this file
+
 // Kilo -- A very simple editor in less than 1-kilo lines of code (as counted
 //         by "cloc"). Does not depend on libcurses, directly emits VT100
 //         escapes on the terminal.
 
-char* KILO_VERSION = "0.0.1"; // DEFINE
+char* KILO_VERSION = "0.0.1-planet"; // DEFINE
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
@@ -1514,6 +1517,27 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+// Copyright 2026 Romain Ducrocq
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 // -----------------------------------------------------------------------
 //
 // Copyright (C) 2016 Salvatore Sanfilippo <antirez at gmail dot com>
