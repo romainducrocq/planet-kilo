@@ -91,23 +91,12 @@ extern void perror(const char* s);
 extern int print(const char* format);
 extern int fprint(struct FILE* stream, const char* format);
 extern int snprint(char* s, unsigned long n, const char* format);
-// POSIX
-extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
-
-extern const char* fmt1(const char* s1);
 extern const char* fmt2(const char* s1, const char* s2);
 extern const char* fmt3(const char* s1, const char* s2, const char* s3);
-extern const char* fmt4(const char* s1, const char* s2, const char* s3, const char* s4);
 extern const char* fmt5(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5);
-extern const char* fmt6(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6);
-extern const char* fmt7(
-    const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6, const char* s7);
-extern const char* fmt8(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6,
-    const char* s7, const char* s8);
-extern const char* fmt9(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6,
-    const char* s7, const char* s8, const char* s9);
-extern const char* fmt10(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5, const char* s6,
-    const char* s7, const char* s8, const char* s9, const char* s10);
+
+// POSIX
+extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
 
 extern const char* ctostr(const char* s, char value);
 extern const char* dtostr(const char* s, double value, int precision);
