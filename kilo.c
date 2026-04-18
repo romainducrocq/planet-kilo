@@ -90,12 +90,9 @@ extern int fclose(struct FILE* stream);
 extern void perror(const char* s);
 extern int print(const char* format);
 extern int fprint(struct FILE* stream, const char* format);
+extern int snprint(char* s, unsigned long n, const char* format);
 // POSIX
 extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
-
-// TODO
-extern int snprintf(char* s, unsigned long n, const char* format, ...);
-extern int snprint(char* s, unsigned long n, const char* format);
 
 extern const char* fmt1(const char* s1);
 extern const char* fmt2(const char* s1, const char* s2);
@@ -254,8 +251,7 @@ static struct editorConfig E;
 #define PAGE_UP 1007
 #define PAGE_DOWN 1008
 
-void editorSetStatusMessageInt(const char* fmt, int d);
-void editorSetStatusMessageStr(const char* fmt, const char* s);
+void editorSetStatusMessage(const char* format);
 
 /* =========================== Syntax highlights DB =========================
  *
@@ -1030,14 +1026,15 @@ int editorSave(void) {
     close(fd);
     free(buf);
     E.dirty = 0;
-    editorSetStatusMessageInt("%d bytes written on disk", len);
+    char sd[20] = {0};
+    editorSetStatusMessage(fmt2(ltostr(sd, len), " bytes written on disk"));
     return 0;
 
 writeerr:
     free(buf);
     if (fd != -1)
         close(fd);
-    editorSetStatusMessageStr("Can't save! I/O error: %s", strerror(get_errno()));
+    editorSetStatusMessage(fmt2("Can't save! I/O error: ", strerror(get_errno())));
     return 1;
 }
 
@@ -1199,18 +1196,8 @@ void editorRefreshScreen(void) {
 
 /* Set an editor status message for the second line of the status, at the
  * end of the screen. */
-void editorSetStatusMessage(const char* msg) {
-    snprintf(E.statusmsg, sizeof(E.statusmsg), "%s", msg);
-    E.statusmsg_time = time(NULL);
-}
-
-void editorSetStatusMessageInt(const char* fmt, int d) {
-    snprintf(E.statusmsg, sizeof(E.statusmsg), fmt, d);
-    E.statusmsg_time = time(NULL);
-}
-
-void editorSetStatusMessageStr(const char* fmt, const char* s) {
-    snprintf(E.statusmsg, sizeof(E.statusmsg), fmt, s);
+void editorSetStatusMessage(const char* format) {
+    snprint(E.statusmsg, sizeof(E.statusmsg), format);
     E.statusmsg_time = time(NULL);
 }
 
@@ -1243,7 +1230,7 @@ void editorFind(int fd) {
     int saved_rowoff = E.rowoff;
 
     while (1) {
-        editorSetStatusMessageStr("Search: %s (Use ESC/Arrows/Enter)", query);
+        editorSetStatusMessage(fmt3("Search: ", query, " (Use ESC/Arrows/Enter)"));
         editorRefreshScreen();
 
         int c = editorReadKey(fd);
@@ -1431,9 +1418,9 @@ void editorProcessKeypress(int fd) {
         case CTRL_Q: /* Ctrl-q */
             /* Quit if the file was already saved. */
             if (E.dirty && quit_times) {
-                editorSetStatusMessageInt("WARNING!!! File has unsaved changes. "
-                                          "Press Ctrl-Q %d more times to quit.",
-                    quit_times);
+                char sd[20] = {0};
+                editorSetStatusMessage(
+                    fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ", ltostr(sd, quit_times), " more times to quit."));
                 quit_times--;
                 return;
             }
