@@ -2,8 +2,10 @@
 //         by "cloc"). Does not depend on libcurses, directly emits VT100
 //         escapes on the terminal.
 
-const char* KILO_VERSION = "0.0.1"; // DEFINE
+char* KILO_VERSION = "0.0.1"; // DEFINE
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
 // ctype.h
 extern int isdigit(int c);
 extern int isprint(int c);
@@ -14,20 +16,20 @@ extern int get_errno(void);
 extern void set_errno(int value);
 
 // stdio.h
-const int NULL = 0; // DEFINE
+int NULL = 0; // DEFINE
 struct FILE;
 extern struct FILE* get_stderr(void);
-extern struct FILE* fopen(const char* filename, const char* mode);
+extern struct FILE* fopen(char* filename, char* mode);
 extern int fclose(struct FILE* stream);
-extern void perror(const char* s);
-extern int print(const char* format);
-extern int fprint(struct FILE* stream, const char* format);
-extern int snprint(char* s, unsigned long n, const char* format);
+extern void perror(char* s);
+extern int print(char* format);
+extern int fprint(struct FILE* stream, char* format);
+extern int snprint(char* s, unsigned long n, char* format);
 extern int sscan(char* s, void* valptr, char* format);
-extern const char* fmt2(const char* s1, const char* s2);
-extern const char* fmt3(const char* s1, const char* s2, const char* s3);
-extern const char* fmt5(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5);
-extern const char* ltostr(const char* s, long value);
+extern char* fmt2(char* s1, char* s2);
+extern char* fmt3(char* s1, char* s2, char* s3);
+extern char* fmt5(char* s1, char* s2, char* s3, char* s4, char* s5);
+extern char* ltostr(char* s, long value);
 
 // stdlib.h
 void atexit_func(void);
@@ -38,14 +40,14 @@ extern void free(void* ptr);
 extern void* malloc(unsigned long size);
 
 // string.h
-extern void* memcpy(void* s1, const void* s2, unsigned long n);
-extern void* memmove(void* s1, const void* s2, unsigned long n);
-extern int memcmp(const void* s1, const void* s2, unsigned long n);
-extern char* strchr(const char* s, int c);
-extern char* strstr(const char* s1, const char* s2);
+extern void* memcpy(void* s1, void* s2, unsigned long n);
+extern void* memmove(void* s1, void* s2, unsigned long n);
+extern int memcmp(void* s1, void* s2, unsigned long n);
+extern char* strchr(char* s, int c);
+extern char* strstr(char* s1, char* s2);
 extern void* memset(void* s, int c, unsigned long n);
 extern char* strerror(int errnum);
-extern unsigned long strlen(const char* s);
+extern unsigned long strlen(char* s);
 
 // time.h
 extern unsigned long time(unsigned long* timer);
@@ -53,20 +55,21 @@ extern unsigned long time(unsigned long* timer);
 // signal.h
 void signal_func(int sig);
 extern int signal_f(int sig);
+#pragma GCC diagnostic pop
 
 // Syntax highlight types
-const int HL_NORMAL = 0;    // DEFINE
-const int HL_NONPRINT = 1;  // DEFINE
-const int HL_COMMENT = 2;   // DEFINE // Single line comment.
-const int HL_MLCOMMENT = 3; // DEFINE // Multi-line comment.
-const int HL_KEYWORD1 = 4;  // DEFINE
-const int HL_KEYWORD2 = 5;  // DEFINE
-const int HL_STRING = 6;    // DEFINE
-const int HL_NUMBER = 7;    // DEFINE
-const int HL_MATCH = 8;     // DEFINE // Search match.
+int HL_NORMAL = 0;    // DEFINE
+int HL_NONPRINT = 1;  // DEFINE
+int HL_COMMENT = 2;   // DEFINE // Single line comment.
+int HL_MLCOMMENT = 3; // DEFINE // Multi-line comment.
+int HL_KEYWORD1 = 4;  // DEFINE
+int HL_KEYWORD2 = 5;  // DEFINE
+int HL_STRING = 6;    // DEFINE
+int HL_NUMBER = 7;    // DEFINE
+int HL_MATCH = 8;     // DEFINE // Search match.
 
-const int HL_HIGHLIGHT_STRINGS = 1; // DEFINE // (1 << 0)
-const int HL_HIGHLIGHT_NUMBERS = 2; // DEFINE // (1 << 1)
+int HL_HIGHLIGHT_STRINGS = 1; // DEFINE // (1 << 0)
+int HL_HIGHLIGHT_NUMBERS = 2; // DEFINE // (1 << 1)
 
 struct editorSyntax {
     char** filematch;
@@ -109,35 +112,37 @@ struct editorConfig {
 static struct editorConfig E;
 
 // KEY_ACTION
-const int KEY_NULL = 0;    // DEFINE // NULL
-const int CTRL_C = 3;      // DEFINE // Ctrl-c
-const int CTRL_D = 4;      // DEFINE // Ctrl-d
-const int CTRL_F = 6;      // DEFINE // Ctrl-f
-const int CTRL_H = 8;      // DEFINE // Ctrl-h
-const int TAB = 9;         // DEFINE // Tab
-const int CTRL_L = 12;     // DEFINE // Ctrl+l
-const int ENTER = 13;      // DEFINE // Enter
-const int CTRL_Q = 17;     // DEFINE // Ctrl-q
-const int CTRL_S = 19;     // DEFINE // Ctrl-s
-const int CTRL_U = 21;     // DEFINE // Ctrl-u
-const int ESC = 27;        // DEFINE // Escape
-const int BACKSPACE = 127; // DEFINE // Backspace
+int KEY_NULL = 0;    // DEFINE // NULL
+int CTRL_C = 3;      // DEFINE // Ctrl-c
+int CTRL_D = 4;      // DEFINE // Ctrl-d
+int CTRL_F = 6;      // DEFINE // Ctrl-f
+int CTRL_H = 8;      // DEFINE // Ctrl-h
+int TAB = 9;         // DEFINE // Tab
+int CTRL_L = 12;     // DEFINE // Ctrl+l
+int ENTER = 13;      // DEFINE // Enter
+int CTRL_Q = 17;     // DEFINE // Ctrl-q
+int CTRL_S = 19;     // DEFINE // Ctrl-s
+int CTRL_U = 21;     // DEFINE // Ctrl-u
+int ESC = 27;        // DEFINE // Escape
+int BACKSPACE = 127; // DEFINE // Backspace
 // The following are just soft codes, not really reported by the
 // terminal directly.
-const int ARROW_LEFT = 1000;  // DEFINE
-const int ARROW_RIGHT = 1001; // DEFINE
-const int ARROW_UP = 1002;    // DEFINE
-const int ARROW_DOWN = 1003;  // DEFINE
-const int DEL_KEY = 1004;     // DEFINE
-const int HOME_KEY = 1005;    // DEFINE
-const int END_KEY = 1006;     // DEFINE
-const int PAGE_UP = 1007;     // DEFINE
-const int PAGE_DOWN = 1008;   // DEFINE
+int ARROW_LEFT = 1000;  // DEFINE
+int ARROW_RIGHT = 1001; // DEFINE
+int ARROW_UP = 1002;    // DEFINE
+int ARROW_DOWN = 1003;  // DEFINE
+int DEL_KEY = 1004;     // DEFINE
+int HOME_KEY = 1005;    // DEFINE
+int END_KEY = 1006;     // DEFINE
+int PAGE_UP = 1007;     // DEFINE
+int PAGE_DOWN = 1008;   // DEFINE
 
-void editorSetStatusMessage(const char* format);
+void editorSetStatusMessage(char* format);
 
 // =========================== POSIX header bindings ========================
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
 // termios.h
 struct termios {
     unsigned int c_iflag;   // input mode flags
@@ -149,26 +154,26 @@ struct termios {
     unsigned int c_ispeed;  // input speed
     unsigned int c_ospeed;  // output speed
 };
-extern int tcsetattr(int fd, int optional_actions, const struct termios* termios_p);
+extern int tcsetattr(int fd, int optional_actions, struct termios* termios_p);
 extern int tcgetattr(int fd, struct termios* termios_p);
-const int TCSAFLUSH = 2;  // DEFINE
-const int BRKINT = 2;     // DEFINE // 0000002 Signal interrupt on break.
-const int INPCK = 16;     // DEFINE // 0000020 Enable input parity check.
-const int ISTRIP = 32;    // DEFINE // 0000040 Strip 8th bit off characters.
-const int ICRNL = 256;    // DEFINE // 0000400 Map CR to NL on input.
-const int IXON = 1024;    // DEFINE // 0002000 Enable start/stop output control.
-const int OPOST = 1;      // DEFINE // 0000001 Post-process output.
-const int CS8 = 48;       // DEFINE // 0000060
-const int ECHO = 8;       // DEFINE // 0000010 Enable echo.
-const int ICANON = 2;     // DEFINE // 0000002 Canonical input (erase and kill processing).
-const int IEXTEN = 32768; // DEFINE // 0100000 Enable implementation-defined input processing.
-const int ISIG = 1;       // DEFINE // 0000001 Enable signals.
-const int VTIME = 5;      // DEFINE
-const int VMIN = 6;       // DEFINE
+int TCSAFLUSH = 2;  // DEFINE
+int BRKINT = 2;     // DEFINE // 0000002 Signal interrupt on break.
+int INPCK = 16;     // DEFINE // 0000020 Enable input parity check.
+int ISTRIP = 32;    // DEFINE // 0000040 Strip 8th bit off characters.
+int ICRNL = 256;    // DEFINE // 0000400 Map CR to NL on input.
+int IXON = 1024;    // DEFINE // 0002000 Enable start/stop output control.
+int OPOST = 1;      // DEFINE // 0000001 Post-process output.
+int CS8 = 48;       // DEFINE // 0000060
+int ECHO = 8;       // DEFINE // 0000010 Enable echo.
+int ICANON = 2;     // DEFINE // 0000002 Canonical input (erase and kill processing).
+int IEXTEN = 32768; // DEFINE // 0100000 Enable implementation-defined input processing.
+int ISIG = 1;       // DEFINE // 0000001 Enable signals.
+int VTIME = 5;      // DEFINE
+int VMIN = 6;       // DEFINE
 
 // errno.h
-const int ENOENT = 2;  // DEFINE // No such file or directory
-const int ENOTTY = 25; // DEFINE // Not a typewriter
+int ENOENT = 2;  // DEFINE // No such file or directory
+int ENOTTY = 25; // DEFINE // Not a typewriter
 
 // stdio.h
 // _POSIX_C_SOURCE 200809L
@@ -182,47 +187,48 @@ struct winsize {
     unsigned char ws_ypixel[2];
 };
 extern int ioctl(int fd, unsigned long int request, struct winsize* ws);
-const int TIOCGWINSZ = 21523; // DEFINE // 0x5413
+int TIOCGWINSZ = 21523; // DEFINE // 0x5413
 
 // unistd.h
 extern int isatty(int fd);
 extern long read(int fd, void* buf, unsigned long nbytes);
-extern long write(int fd, const void* buf, unsigned long n);
+extern long write(int fd, void* buf, unsigned long n);
 extern int ftruncate(int fd, long length);
 extern int close(int fd);
-const int STDIN_FILENO = 0;  // DEFINE // Standard input.
-const int STDOUT_FILENO = 1; // DEFINE // Standard output.
+int STDIN_FILENO = 0;  // DEFINE // Standard input.
+int STDOUT_FILENO = 1; // DEFINE // Standard output.
 
 // fcntl.h
-extern int open(const char* path, int oflag, unsigned int mode);
-const int O_RDWR = 2;     // DEFINE 02
-const int O_CREAT = 64;   // DEFINE 0100
-const int COPYMODE = 420; // DEFINE 0644
+extern int open(char* path, int oflag, unsigned int mode);
+int O_RDWR = 2;     // DEFINE 02
+int O_CREAT = 64;   // DEFINE 0100
+int COPYMODE = 420; // DEFINE 0644
 
 // signal.h
 // Nonstandard signals found in all modern POSIX systems
 // (including both BSD and Linux).
-const int SIGWINCH = 28; // Window size change (4.3 BSD, Sun).
+int SIGWINCH = 28; // Window size change (4.3 BSD, Sun).
+#pragma GCC diagnostic pop
 
 // =========================== ANSI escape sequences ========================
 // https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b
 
-char x1b_prefix[3] = {ESC, '[', NULL};
+char x1b_prefix[3] = {27, '[', 0}; // DEFINE ESC NULL
 
-char x1b_move_cur_home[4] = {ESC, '[', 'H', NULL};
-char x1b_get_cur_pos[5] = {ESC, '[', '6', 'n', NULL};
-char x1b_show_cur[7] = {ESC, '[', '?', '2', '5', 'h', NULL};
-char x1b_hide_cur[7] = {ESC, '[', '?', '2', '5', 'l', NULL};
-char x1b_erase_cur[5] = {ESC, '[', '0', 'K', NULL};
-char X1B_erase_cur_crlf[7] = {ESC, '[', '0', 'K', '\r', '\n', NULL};
-char x1b_put_blank_line[8] = {'~', ESC, '[', '0', 'K', '\r', '\n', NULL};
+char x1b_move_cur_home[4] = {27, '[', 'H', 0};                        // DEFINE ESC NULL
+char x1b_get_cur_pos[5] = {27, '[', '6', 'n', 0};                     // DEFINE ESC NULL
+char x1b_show_cur[7] = {27, '[', '?', '2', '5', 'h', 0};              // DEFINE ESC NULL
+char x1b_hide_cur[7] = {27, '[', '?', '2', '5', 'l', 0};              // DEFINE ESC NULL
+char x1b_erase_cur[5] = {27, '[', '0', 'K', 0};                       // DEFINE ESC NULL
+char X1B_erase_cur_crlf[7] = {27, '[', '0', 'K', '\r', '\n', 0};      // DEFINE ESC NULL
+char x1b_put_blank_line[8] = {'~', 27, '[', '0', 'K', '\r', '\n', 0}; // DEFINE ESC NULL
 
-char x1b_set_inv_mode[5] = {ESC, '[', '7', 'm', NULL};
-char x1b_reset_modes[5] = {ESC, '[', '0', 'm', NULL};
-char x1b_reset_modes_clrf[7] = {ESC, '[', '0', 'm', '\r', '\n', NULL};
+char x1b_set_inv_mode[5] = {27, '[', '7', 'm', 0};                 // DEFINE ESC NULL
+char x1b_reset_modes[5] = {27, '[', '0', 'm', 0};                  // DEFINE ESC NULL
+char x1b_reset_modes_clrf[7] = {27, '[', '0', 'm', '\r', '\n', 0}; // DEFINE ESC NULL
 
-char x1b_set_def_fgcol[6] = {ESC, '[', '3', '9', 'm', NULL};
-char x1b_get_ws_rowcol[13] = {ESC, '[', '9', '9', '9', 'C', ESC, '[', '9', '9', '9', 'B', NULL};
+char x1b_set_def_fgcol[6] = {27, '[', '3', '9', 'm', 0};                                    // DEFINE ESC NULL
+char x1b_get_ws_rowcol[13] = {27, '[', '9', '9', '9', 'C', 27, '[', '9', '9', '9', 'B', 0}; // DEFINE ESC NULL
 
 // =========================== Syntax highlights DB =========================
 //
@@ -265,9 +271,9 @@ char* C_HL_keywords[82] = {
 
 // Here we define an array of syntax highlights by extensions, keywords,
 // comments delimiters and flags.
-const unsigned int HLDB_ENTRIES = 1; // DEFINE
-struct editorSyntax HLDB[1] = {{     // C / C++
-    C_HL_extensions, C_HL_keywords, "//", "/*", "*/", HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS}};
+unsigned int HLDB_ENTRIES = 1;                             // DEFINE
+struct editorSyntax HLDB[1] = {{                           // C / C++
+    C_HL_extensions, C_HL_keywords, "//", "/*", "*/", 3}}; // DEFINE HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS
 
 // ======================= Low level terminal handling ======================
 
@@ -1025,7 +1031,7 @@ struct abuf {
 
 // #define ABUF_INIT { NULL, 0 }
 
-void abAppend(struct abuf* ab, const char* s, int len) {
+void abAppend(struct abuf* ab, char* s, int len) {
     char* new = realloc(ab->b, ab->len + len);
 
     if (new == 0) // DEFINE NULL
@@ -1169,14 +1175,14 @@ void editorRefreshScreen(void) {
 
 // Set an editor status message for the second line of the status, at the
 // end of the screen.
-void editorSetStatusMessage(const char* format) {
+void editorSetStatusMessage(char* format) {
     snprint(E.statusmsg, sizeof(E.statusmsg), format);
     E.statusmsg_time = time(0); // DEFINE NULL
 }
 
 // =============================== Find mode ================================
 
-const int KILO_QUERY_LEN = 256; // DEFINE
+int KILO_QUERY_LEN = 256; // DEFINE
 
 void editorFind(int fd) {
     char query[257] = {0}; // DEFINE KILO_QUERY_LEN + 1
@@ -1381,11 +1387,11 @@ void editorMoveCursor(int key) {
 
 // Process events arriving from the standard input, which is, the user
 // is typing stuff on the terminal.
-const int KILO_QUIT_TIMES = 3; // DEFINE
+int KILO_QUIT_TIMES = 3; // DEFINE
 void editorProcessKeypress(int fd) {
     // When the file is modified, requires Ctrl-q to be pressed N times
     // before actually quitting.
-    static int quit_times = KILO_QUIT_TIMES;
+    static int quit_times = 3; // DEFINE KILO_QUIT_TIMES
 
     int c = editorReadKey(fd);
     switch (c) {
