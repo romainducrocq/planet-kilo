@@ -91,9 +91,12 @@ extern void perror(const char* s);
 extern int print(const char* format);
 extern int fprint(struct FILE* stream, const char* format);
 extern int snprint(char* s, unsigned long n, const char* format);
+extern int sscan(char* s, void* valptr, char* format);
 extern const char* fmt2(const char* s1, const char* s2);
 extern const char* fmt3(const char* s1, const char* s2, const char* s3);
 extern const char* fmt5(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5);
+
+extern int sscanf(const char* s, const char* format, ...); // TODO
 
 // POSIX
 extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
@@ -414,12 +417,6 @@ int editorReadKey(int fd) {
     }
 }
 
-static int sscanf2Int(const char* s, const char* format, int* d1, int* d2) {
-    // TODO
-    extern int sscanf(const char* s, const char* format, ...); // int* d1, int* d2
-    return sscanf(s, format, d1, d2);
-}
-
 /* Use the ESC [6n escape sequence to query the horizontal cursor position
  * and return it. On error -1 is returned, on success the position of the
  * cursor is stored at *rows and *cols and 0 is returned. */
@@ -444,8 +441,18 @@ int getCursorPosition(int ifd, int ofd, int* rows, int* cols) {
     /* Parse it. */
     if (buf[0] != ESC || buf[1] != '[')
         return -1;
-    if (sscanf2Int(buf + 2, "%d;%d", rows, cols) != 2)
-        return -1;
+
+    char* p = buf + 1;
+    while (++p && *p) {
+        if (*p == ';') {
+            *p = 0;
+            if (sscanf(buf + 2, "%d", rows) != 1)
+                return -1;
+            if (sscanf(p + 1, "%d", cols) != 1)
+                return -1;
+            break;
+        }
+    }
     return 0;
 }
 
@@ -1408,8 +1415,8 @@ void editorProcessKeypress(int fd) {
             /* Quit if the file was already saved. */
             if (E.dirty && quit_times) {
                 char sd[20] = {0};
-                editorSetStatusMessage(
-                    fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ", ltostr(sd, quit_times), " more times to quit."));
+                editorSetStatusMessage(fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ",
+                    ltostr(sd, quit_times), " more times to quit."));
                 quit_times--;
                 return;
             }
