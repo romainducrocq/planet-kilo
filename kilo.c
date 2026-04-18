@@ -245,22 +245,22 @@ void editorSetStatusMessage(const char* format);
 
 // ANSI escape sequences
 // https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b
-static char X1B_PREFIX[3] = {ESC, '[', NULL};
+static char x1b_prefix[3] = {ESC, '[', NULL};
 
-static char X1B_MOVECURHOME[4] = {ESC, '[', 'H', NULL};
-static char X1B_GETCURPOS[5] = {ESC, '[', '6', 'n', NULL};
-static char X1B_SHOWCUR[7] = {ESC, '[', '?', '2', '5', 'h', NULL};
-static char X1B_HIDECUR[7] = {ESC, '[', '?', '2', '5', 'l', NULL};
-static char X1B_ERASECUR[5] = {ESC, '[', '0', 'K', NULL};
-static char X1B_BREAKLINE[7] = {ESC, '[', '0', 'K', '\r', '\n', NULL};
-static char X1B_BLANKLINE[8] = {'~', ESC, '[', '0', 'K', '\r', '\n', NULL};
+static char x1b_move_cur_home[4] = {ESC, '[', 'H', NULL};
+static char x1b_get_cur_pos[5] = {ESC, '[', '6', 'n', NULL};
+static char x1b_show_cur[7] = {ESC, '[', '?', '2', '5', 'h', NULL};
+static char x1b_hide_cur[7] = {ESC, '[', '?', '2', '5', 'l', NULL};
+static char x1b_erase_cur[5] = {ESC, '[', '0', 'K', NULL};
+static char X1B_erase_cur_crlf[7] = {ESC, '[', '0', 'K', '\r', '\n', NULL};
+static char x1b_put_blank_line[8] = {'~', ESC, '[', '0', 'K', '\r', '\n', NULL};
 
-static char X1B_SETINVMODE[5] = {ESC, '[', '7', 'm', NULL};
-static char X1B_RESETALLMODES[5] = {ESC, '[', '0', 'm', NULL};
-static char X1B_RESETBREAKLINE[7] = {ESC, '[', '0', 'm', '\r', '\n', NULL};
+static char x1b_set_inv_mode[5] = {ESC, '[', '7', 'm', NULL};
+static char x1b_reset_modes[5] = {ESC, '[', '0', 'm', NULL};
+static char x1b_reset_modes_clrf[7] = {ESC, '[', '0', 'm', '\r', '\n', NULL};
 
-static char X1B_SETDEFFORCOL[6] = {ESC, '[', '3', '9', 'm', NULL};
-static char X1B_GETWINSIZEROWCOL[13] = {ESC, '[', '9', '9', '9', 'C', ESC, '[', '9', '9', '9', 'B', NULL};
+static char x1b_set_def_fgcol[6] = {ESC, '[', '3', '9', 'm', NULL};
+static char x1b_get_ws_rowcol[13] = {ESC, '[', '9', '9', '9', 'C', ESC, '[', '9', '9', '9', 'B', NULL};
 
 /* =========================== Syntax highlights DB =========================
  *
@@ -442,7 +442,7 @@ int getCursorPosition(int ifd, int ofd, int* rows, int* cols) {
     unsigned int i = 0;
 
     /* Report cursor location */
-    if (write(ofd, X1B_GETCURPOS, 4) != 4)
+    if (write(ofd, x1b_get_cur_pos, 4) != 4)
         return -1;
 
     /* Read the response: ESC [ rows ; cols R */
@@ -491,7 +491,7 @@ int getWindowSize(int ifd, int ofd, int* rows, int* cols) {
             goto failed;
 
         /* Go to right/bottom margin and get position. */
-        if (write(ofd, X1B_GETWINSIZEROWCOL, 12) != 12)
+        if (write(ofd, x1b_get_ws_rowcol, 12) != 12)
             goto failed;
         retval = getCursorPosition(ifd, ofd, rows, cols);
         if (retval == -1)
@@ -501,7 +501,7 @@ int getWindowSize(int ifd, int ofd, int* rows, int* cols) {
         char seq[32];
         char sd1[20] = {0};
         char sd2[20] = {0};
-        snprint(seq, 32, fmt5(X1B_PREFIX, ltostr(sd1, orig_row), ";", ltostr(sd2, orig_col), "H"));
+        snprint(seq, 32, fmt5(x1b_prefix, ltostr(sd1, orig_row), ";", ltostr(sd2, orig_col), "H"));
         if (write(ofd, seq, strlen(seq)) == -1) {
             /* Can't recover... */
             ;
@@ -1087,16 +1087,16 @@ void editorRefreshScreen(void) {
     char sd2[20] = {0};
     struct abuf ab = ABUF_INIT;
 
-    abAppend(&ab, X1B_HIDECUR, 6);     /* Hide cursor. */
-    abAppend(&ab, X1B_MOVECURHOME, 3); /* Go home. */
+    abAppend(&ab, x1b_hide_cur, 6);      /* Hide cursor. */
+    abAppend(&ab, x1b_move_cur_home, 3); /* Go home. */
     for (y = 0; y < E.screenrows; y++) {
         int filerow = E.rowoff + y;
 
         if (filerow >= E.numrows) {
             if (E.numrows == 0 && y == E.screenrows / 3) {
                 char welcome[80];
-                int welcomelen =
-                    snprint(welcome, sizeof(welcome), fmt3("Kilo editor -- version ", KILO_VERSION, X1B_BREAKLINE));
+                int welcomelen = snprint(
+                    welcome, sizeof(welcome), fmt3("Kilo editor -- version ", KILO_VERSION, X1B_erase_cur_crlf));
                 int padding = (E.screencols - welcomelen) / 2;
                 if (padding) {
                     abAppend(&ab, "~", 1);
@@ -1107,7 +1107,7 @@ void editorRefreshScreen(void) {
                 abAppend(&ab, welcome, welcomelen);
             }
             else {
-                abAppend(&ab, X1B_BLANKLINE, 7);
+                abAppend(&ab, x1b_put_blank_line, 7);
             }
             continue;
         }
@@ -1125,17 +1125,17 @@ void editorRefreshScreen(void) {
             for (j = 0; j < len; j++) {
                 if (hl[j] == HL_NONPRINT) {
                     char sym;
-                    abAppend(&ab, X1B_SETINVMODE, 4);
+                    abAppend(&ab, x1b_set_inv_mode, 4);
                     if (c[j] <= 26)
                         sym = '@' + c[j];
                     else
                         sym = '?';
                     abAppend(&ab, &sym, 1);
-                    abAppend(&ab, X1B_RESETALLMODES, 4);
+                    abAppend(&ab, x1b_reset_modes, 4);
                 }
                 else if (hl[j] == HL_NORMAL) {
                     if (current_color != -1) {
-                        abAppend(&ab, X1B_SETDEFFORCOL, 5);
+                        abAppend(&ab, x1b_set_def_fgcol, 5);
                         current_color = -1;
                     }
                     abAppend(&ab, c + j, 1);
@@ -1144,7 +1144,7 @@ void editorRefreshScreen(void) {
                     int color = editorSyntaxToColor(hl[j]);
                     if (color != current_color) {
                         char buf[16];
-                        int clen = snprint(buf, sizeof(buf), fmt3(X1B_PREFIX, ltostr(sd1, color), "m"));
+                        int clen = snprint(buf, sizeof(buf), fmt3(x1b_prefix, ltostr(sd1, color), "m"));
                         current_color = color;
                         abAppend(&ab, buf, clen);
                     }
@@ -1152,14 +1152,14 @@ void editorRefreshScreen(void) {
                 }
             }
         }
-        abAppend(&ab, X1B_SETDEFFORCOL, 5);
-        abAppend(&ab, X1B_ERASECUR, 4);
+        abAppend(&ab, x1b_set_def_fgcol, 5);
+        abAppend(&ab, x1b_erase_cur, 4);
         abAppend(&ab, "\r\n", 2);
     }
 
     /* Create a two rows status. First row: */
-    abAppend(&ab, X1B_ERASECUR, 4);
-    abAppend(&ab, X1B_SETINVMODE, 4);
+    abAppend(&ab, x1b_erase_cur, 4);
+    abAppend(&ab, x1b_set_inv_mode, 4);
     char status[80];
     char rstatus[80];
     int len = snprint(status, sizeof(status),
@@ -1178,10 +1178,10 @@ void editorRefreshScreen(void) {
             len++;
         }
     }
-    abAppend(&ab, X1B_RESETBREAKLINE, 6);
+    abAppend(&ab, x1b_reset_modes_clrf, 6);
 
     /* Second row depends on E.statusmsg and the status message update time. */
-    abAppend(&ab, X1B_ERASECUR, 4);
+    abAppend(&ab, x1b_erase_cur, 4);
     int msglen = strlen(E.statusmsg);
     if (msglen && time(NULL) - E.statusmsg_time < 5)
         abAppend(&ab, E.statusmsg, msglen <= E.screencols ? msglen : E.screencols);
@@ -1200,9 +1200,9 @@ void editorRefreshScreen(void) {
             cx++;
         }
     }
-    snprint(buf, sizeof(buf), fmt5(X1B_PREFIX, ltostr(sd1, E.cy + 1), ";", ltostr(sd2, cx), "H"));
+    snprint(buf, sizeof(buf), fmt5(x1b_prefix, ltostr(sd1, E.cy + 1), ";", ltostr(sd2, cx), "H"));
     abAppend(&ab, buf, strlen(buf));
-    abAppend(&ab, X1B_SHOWCUR, 6); /* Show cursor. */
+    abAppend(&ab, x1b_show_cur, 6); /* Show cursor. */
     write(STDOUT_FILENO, ab.b, ab.len);
     abFree(&ab);
 }
