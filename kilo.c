@@ -33,46 +33,16 @@
 
 const char* KILO_VERSION = "0.0.1"; // DEFINE
 
-// #include <termios.h>
-struct termios {
-    unsigned int c_iflag;   // input mode flags
-    unsigned int c_oflag;   // output mode flags
-    unsigned int c_cflag;   // control mode flags
-    unsigned int c_lflag;   // local mode flags
-    unsigned char c_line;   // line discipline
-    unsigned char c_cc[32]; // control characters
-    unsigned int c_ispeed;  // input speed
-    unsigned int c_ospeed;  // output speed
-};
-extern int tcsetattr(int __fd, int __optional_actions, const struct termios* __termios_p);
-extern int tcgetattr(int __fd, struct termios* __termios_p);
-const int TCSAFLUSH = 2;  // DEFINE
-const int BRKINT = 2;     // DEFINE // 0000002 Signal interrupt on break.
-const int INPCK = 16;     // DEFINE // 0000020 Enable input parity check.
-const int ISTRIP = 32;    // DEFINE // 0000040 Strip 8th bit off characters.
-const int ICRNL = 256;    // DEFINE // 0000400 Map CR to NL on input.
-const int IXON = 1024;    // DEFINE // 0002000 Enable start/stop output control.
-const int OPOST = 1;      // DEFINE // 0000001 Post-process output.
-const int CS8 = 48;       // DEFINE // 0000060
-const int ECHO = 8;       // DEFINE // 0000010 Enable echo.
-const int ICANON = 2;     // DEFINE // 0000002 Canonical input (erase and kill processing).
-const int IEXTEN = 32768; // DEFINE // 0100000 Enable implementation-defined input processing.
-const int ISIG = 1;       // DEFINE // 0000001 Enable signals.
-const int VTIME = 5;      // DEFINE
-const int VMIN = 6;       // DEFINE
-
-// #include <ctype.h>
+// ctype.h
 extern int isdigit(int c);
 extern int isprint(int c);
 extern int isspace(int c);
 
-// #include <errno.h>
-const int ENOENT = 2;  // DEFINE // No such file or directory
-const int ENOTTY = 25; // DEFINE // Not a typewriter
+// errno.h
 extern int get_errno(void);
 extern void set_errno(int value);
 
-// #include <stdio.h>
+// stdio.h
 const int NULL = 0; // DEFINE
 struct FILE;
 extern struct FILE* get_stderr(void);
@@ -86,18 +56,9 @@ extern int sscan(char* s, void* valptr, char* format);
 extern const char* fmt2(const char* s1, const char* s2);
 extern const char* fmt3(const char* s1, const char* s2, const char* s3);
 extern const char* fmt5(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5);
-
-// POSIX
-extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
-
-extern const char* ctostr(const char* s, char value);
-extern const char* dtostr(const char* s, double value, int precision);
 extern const char* ltostr(const char* s, long value);
-extern const char* ultostr(const char* s, unsigned long value);
-extern const char* ptostr(const char* s, void* value);
-extern const char* xtostr(const char* s, int value, int precision);
 
-// #include <stdlib.h>
+// stdlib.h
 void atexit_func(void);
 extern int atexit_f(void);
 extern void exit(int status);
@@ -105,7 +66,7 @@ extern void* realloc(void* ptr, unsigned long size);
 extern void free(void* ptr);
 extern void* malloc(unsigned long size);
 
-// #include <string.h>
+// string.h
 extern void* memcpy(void* s1, const void* s2, unsigned long n);
 extern void* memmove(void* s1, const void* s2, unsigned long n);
 extern int memcmp(const void* s1, const void* s2, unsigned long n);
@@ -115,39 +76,10 @@ extern void* memset(void* s, int c, unsigned long n);
 extern char* strerror(int errnum);
 extern unsigned long strlen(const char* s);
 
-// #include <time.h>
+// time.h
 extern unsigned long time(unsigned long* timer);
-// #include <sys/types.h>
-// #include <sys/ioctl.h>
-struct winsize {
-    unsigned char ws_row[2];
-    unsigned char ws_col[2];
-    unsigned char ws_xpixel[2];
-    unsigned char ws_ypixel[2];
-};
-extern int ioctl(int __fd, unsigned long int __request, struct winsize* ws);
-const int TIOCGWINSZ = 21523; // DEFINE // 0x5413
 
-// #include <sys/time.h>
-// #include <unistd.h>
-const int STDIN_FILENO = 0;  // DEFINE // Standard input.
-const int STDOUT_FILENO = 1; // DEFINE // Standard output.
-extern int isatty(int __fd);
-extern long read(int __fd, void* __buf, unsigned long __nbytes);
-extern long write(int __fd, const void* __buf, unsigned long __n);
-extern int ftruncate(int __fd, long __length);
-extern int close(int __fd);
-
-// #include <stdarg.h>
-// #include <fcntl.h>
-extern int open(const char* __path, int __oflag, unsigned int __mode);
-const int O_RDWR = 2;     // DEFINE 02
-const int O_CREAT = 64;   // DEFINE 0100
-const int COPYMODE = 420; // DEFINE 0644
-
-// #include <signal.h>
-// Nonstandard signals found in all modern POSIX systems (including both BSD and Linux).
-const int SIGWINCH = 28; // Window size change (4.3 BSD, Sun).
+// signal.h
 void signal_func(int sig);
 extern int signal_f(int sig);
 
@@ -233,8 +165,77 @@ const int PAGE_DOWN = 1008;   // DEFINE
 
 void editorSetStatusMessage(const char* format);
 
-// ANSI escape sequences
+// =========================== POSIX header bindings ========================
+
+// termios.h
+struct termios {
+    unsigned int c_iflag;   // input mode flags
+    unsigned int c_oflag;   // output mode flags
+    unsigned int c_cflag;   // control mode flags
+    unsigned int c_lflag;   // local mode flags
+    unsigned char c_line;   // line discipline
+    unsigned char c_cc[32]; // control characters
+    unsigned int c_ispeed;  // input speed
+    unsigned int c_ospeed;  // output speed
+};
+extern int tcsetattr(int __fd, int __optional_actions, const struct termios* __termios_p);
+extern int tcgetattr(int __fd, struct termios* __termios_p);
+const int TCSAFLUSH = 2;  // DEFINE
+const int BRKINT = 2;     // DEFINE // 0000002 Signal interrupt on break.
+const int INPCK = 16;     // DEFINE // 0000020 Enable input parity check.
+const int ISTRIP = 32;    // DEFINE // 0000040 Strip 8th bit off characters.
+const int ICRNL = 256;    // DEFINE // 0000400 Map CR to NL on input.
+const int IXON = 1024;    // DEFINE // 0002000 Enable start/stop output control.
+const int OPOST = 1;      // DEFINE // 0000001 Post-process output.
+const int CS8 = 48;       // DEFINE // 0000060
+const int ECHO = 8;       // DEFINE // 0000010 Enable echo.
+const int ICANON = 2;     // DEFINE // 0000002 Canonical input (erase and kill processing).
+const int IEXTEN = 32768; // DEFINE // 0100000 Enable implementation-defined input processing.
+const int ISIG = 1;       // DEFINE // 0000001 Enable signals.
+const int VTIME = 5;      // DEFINE
+const int VMIN = 6;       // DEFINE
+
+// errno.h
+const int ENOENT = 2;  // DEFINE // No such file or directory
+const int ENOTTY = 25; // DEFINE // Not a typewriter
+
+// stdio.h
+// POSIX
+extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
+
+// sys/ioctl.h
+struct winsize {
+    unsigned char ws_row[2];
+    unsigned char ws_col[2];
+    unsigned char ws_xpixel[2];
+    unsigned char ws_ypixel[2];
+};
+extern int ioctl(int __fd, unsigned long int __request, struct winsize* ws);
+const int TIOCGWINSZ = 21523; // DEFINE // 0x5413
+
+// unistd.h
+extern int isatty(int __fd);
+extern long read(int __fd, void* __buf, unsigned long __nbytes);
+extern long write(int __fd, const void* __buf, unsigned long __n);
+extern int ftruncate(int __fd, long __length);
+extern int close(int __fd);
+const int STDIN_FILENO = 0;  // DEFINE // Standard input.
+const int STDOUT_FILENO = 1; // DEFINE // Standard output.
+
+// fcntl.h
+extern int open(const char* __path, int __oflag, unsigned int __mode);
+const int O_RDWR = 2;     // DEFINE 02
+const int O_CREAT = 64;   // DEFINE 0100
+const int COPYMODE = 420; // DEFINE 0644
+
+// signal.h
+// Nonstandard signals found in all modern POSIX systems
+// (including both BSD and Linux).
+const int SIGWINCH = 28; // Window size change (4.3 BSD, Sun).
+
+// =========================== ANSI escape sequences ========================
 // https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b
+
 char x1b_prefix[3] = {ESC, '[', NULL};
 
 char x1b_move_cur_home[4] = {ESC, '[', 'H', NULL};
