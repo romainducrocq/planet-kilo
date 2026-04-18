@@ -171,7 +171,7 @@ const int ENOENT = 2;  // DEFINE // No such file or directory
 const int ENOTTY = 25; // DEFINE // Not a typewriter
 
 // stdio.h
-// POSIX
+// _POSIX_C_SOURCE 200809L
 extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
 
 // sys/ioctl.h
