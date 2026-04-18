@@ -96,8 +96,6 @@ extern const char* fmt2(const char* s1, const char* s2);
 extern const char* fmt3(const char* s1, const char* s2, const char* s3);
 extern const char* fmt5(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5);
 
-extern int sscanf(const char* s, const char* format, ...); // TODO
-
 // POSIX
 extern long getline(char** lineptr, unsigned long* n, struct FILE* stream);
 
@@ -446,9 +444,9 @@ int getCursorPosition(int ifd, int ofd, int* rows, int* cols) {
     while (++p && *p) {
         if (*p == ';') {
             *p = 0;
-            if (sscanf(buf + 2, "%d", rows) != 1)
+            if (sscan(buf + 2, rows, "%d") != 1)
                 return -1;
-            if (sscanf(p + 1, "%d", cols) != 1)
+            if (sscan(p + 1, cols, "%d") != 1)
                 return -1;
             break;
         }
