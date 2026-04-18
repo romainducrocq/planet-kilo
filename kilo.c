@@ -75,8 +75,8 @@ int HL_HIGHLIGHT_STRINGS = 1; // DEFINE // (1 << 0)
 int HL_HIGHLIGHT_NUMBERS = 2; // DEFINE // (1 << 1)
 
 struct editorSyntax {
-    char** filematch;
-    char** keywords;
+    char* filematch[6];
+    char* keywords[82];
     char singleline_comment_start[2];
     char multiline_comment_start[3];
     char multiline_comment_end[3];
@@ -255,28 +255,28 @@ char x1b_get_ws_rowcol[13] = {27, '[', '9', '9', '9', 'C', 27, '[', '9', '9', '9
 // There is no support to highlight patterns currently.
 
 // C / C++
-char* C_HL_extensions[6] = {".c", ".h", ".cpp", ".hpp", ".cc", 0}; // DEFINE NULL
-char* C_HL_keywords[82] = {
-    // C Keywords
-    "auto", "break", "case", "continue", "default", "do", "else", "enum", "extern", "for", "goto", "if", "register",
-    "return", "sizeof", "static", "struct", "switch", "typedef", "union", "volatile", "while", "NULL",
-
-    // C++ Keywords
-    "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "class", "compl", "constexpr", "const_cast",
-    "deltype", "delete", "dynamic_cast", "explicit", "export", "false", "friend", "inline", "mutable", "namespace",
-    "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public",
-    "reinterpret_cast", "static_assert", "static_cast", "template", "this", "thread_local", "throw", "true", "try",
-    "typeid", "typename", "virtual", "xor", "xor_eq",
-
-    // C types
-    "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|", "short|", "auto|", "const|",
-    "bool|", 0}; // DEFINE NULL
-
 // Here we define an array of syntax highlights by extensions, keywords,
 // comments delimiters and flags.
-unsigned int HLDB_ENTRIES = 1;                             // DEFINE
-struct editorSyntax HLDB[1] = {{                           // C / C++
-    C_HL_extensions, C_HL_keywords, "//", "/*", "*/", 3}}; // DEFINE HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS
+unsigned int HLDB_ENTRIES = 1;  // DEFINE
+struct editorSyntax HLDB[1] = {{// C / C++
+    // C_HL_extensions
+    {".c", ".h", ".cpp", ".hpp", ".cc", 0}, // DEFINE NULL
+    // C_HL_keywords
+    {// C Keywords
+        "auto", "break", "case", "continue", "default", "do", "else", "enum", "extern", "for", "goto", "if", "register",
+        "return", "sizeof", "static", "struct", "switch", "typedef", "union", "volatile", "while", "NULL",
+
+        // C++ Keywords
+        "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "class", "compl", "constexpr", "const_cast",
+        "deltype", "delete", "dynamic_cast", "explicit", "export", "false", "friend", "inline", "mutable", "namespace",
+        "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public",
+        "reinterpret_cast", "static_assert", "static_cast", "template", "this", "thread_local", "throw", "true", "try",
+        "typeid", "typename", "virtual", "xor", "xor_eq",
+
+        // C types
+        "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|", "short|", "auto|", "const|",
+        "bool|", 0},       // DEFINE NULL
+    "//", "/*", "*/", 3}}; // DEFINE HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS
 
 // ======================= Low level terminal handling ======================
 
@@ -714,7 +714,7 @@ void editorUpdateRow(struct erow* row) {
         if (row->chars[j] == TAB)
             tabs++;
 
-    unsigned long long allocsize = (unsigned long long)row->size + tabs * 8 + nonprint * 9 + 1;
+    unsigned long allocsize = (unsigned long)row->size + tabs * 8 + nonprint * 9 + 1;
     if (allocsize > 4294967295u) {
         print("Some line of the edited file is too long for kilo\n");
         exit(1);
