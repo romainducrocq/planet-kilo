@@ -29,31 +29,42 @@ m4_define(HL_MATCH, 8)m4_dnl # Search match.
 m4_define(HL_HIGHLIGHT_STRINGS, 1)m4_dnl # (1 << 0)
 m4_define(HL_HIGHLIGHT_NUMBERS, 2)m4_dnl # (1 << 1)
 
-type struc editorSyntax(    filematch: [6]string    , keywords: [82]string    , singleline_comment_start: [2]char    , multiline_comment_start: [3]char    , multiline_comment_end: [3]char    , flags: i32    )
+type struc editorSyntax(
+    filematch: [6]string,
+    keywords: [82]string,
+    singleline_comment_start: [2]char,
+    multiline_comment_start: [3]char,
+    multiline_comment_end: [3]char,
+    flags: i32
+)
 
 # This structure represents a single line of the file we are editing.
-type struc erow(    idx: i32 # Row index in the file, zero-based.
-    , size: i32 # Size of the row, excluding the null term.
-    , rsize: i32 # Size of the rendered row.
-    , chars: string # Row content.
-    , render: string # Row content "rendered" for screen (for TABs).
-    , hl: *u8 # Syntax highlight type for each character in render.
-    , hl_oc: i32 # Row had open comment at end in last syntax highlight
-    # check.
-    )
+type struc erow(
+    idx: i32, # Row index in the file, zero-based.
+    size: i32, # Size of the row, excluding the null term.
+    rsize: i32, # Size of the rendered row.
+    chars: string, # Row content.
+    render: string, # Row content "rendered" for screen (for TABs).
+    hl: *u8, # Syntax highlight type for each character in render.
+    hl_oc: i32 # Row had open comment at end in last syntax highlight check.
+)
 
-type struc editorConfig(    cx: i32 # Cursor x and y position in characters
-    , cy: i32    , rowoff: i32 # Offset of row displayed.
-    , coloff: i32 # Offset of column displayed.
-    , screenrows: i32 # Number of rows that we can show
-    , screencols: i32 # Number of cols that we can show
-    , numrows: i32 # Number of rows
-    , rawmode: i32 # Is terminal raw mode enabled?
-    , row: *struc erow # Rows
-    , dirty: i32 # File modified but not saved.
-    , filename: string # Currently open filename
-    , statusmsg: [80]char    , statusmsg_time: u64    , syntax: *struc editorSyntax # Current syntax highlight, or NULL.
-    )
+type struc editorConfig(
+    cx: i32, # Cursor x and y position in characters
+    cy: i32,
+    rowoff: i32, # Offset of row displayed.
+    coloff: i32, # Offset of column displayed.
+    screenrows: i32, # Number of rows that we can show
+    screencols: i32, # Number of cols that we can show
+    numrows: i32, # Number of rows
+    rawmode: i32, # Is terminal raw mode enabled?
+    row: *struc erow, # Rows
+    dirty: i32, # File modified but not saved.
+    filename: string, # Currently open filename
+    statusmsg: [80]char,
+    statusmsg_time: u64,
+    syntax: *struc editorSyntax # Current syntax highlight, or NULL.
+)
 
 E: struc editorConfig;
 
@@ -88,15 +99,16 @@ fn editorSetStatusMessage(format: string) none;
 # =========================== POSIX header bindings ========================
 
 # termios.h
-type struc termios(    c_iflag: u32 # input mode flags
-    , c_oflag: u32 # output mode flags
-    , c_cflag: u32 # control mode flags
-    , c_lflag: u32 # local mode flags
-    , c_line: u8 # line discipline
-    , c_cc: [32]u8 # control characters
-    , c_ispeed: u32 # input speed
-    , c_ospeed: u32 # output speed
-    )
+type struc termios(
+    c_iflag: u32, # input mode flags
+    c_oflag: u32, # output mode flags
+    c_cflag: u32, # control mode flags
+    c_lflag: u32, # local mode flags
+    c_line: u8, # line discipline
+    c_cc: [32]u8, # control characters
+    c_ispeed: u32, # input speed
+    c_ospeed: u32 # output speed
+)
 extrn fn tcsetattr(fd: i32, optional_actions: i32, termios_p: *struc termios) i32;
 extrn fn tcgetattr(fd: i32, termios_p: *struc termios) i32;
 m4_define(TCSAFLUSH, 2)m4_dnl
@@ -123,7 +135,12 @@ m4_define(ENOTTY, 25)m4_dnl # Not a typewriter
 extrn fn getline(lineptr: *string, n: *u64, stream: *struc FILE) i64;
 
 # sys/ioctl.h
-type struc winsize(    ws_row: [2]u8    , ws_col: [2]u8    , ws_xpixel: [2]u8    , ws_ypixel: [2]u8    )
+type struc winsize(
+    ws_row: [2]u8,
+    ws_col: [2]u8,
+    ws_xpixel: [2]u8,
+    ws_ypixel: [2]u8
+)
 extrn fn ioctl(fd: i32, request: u64, ws: *struc winsize) i32;
 m4_define(TIOCGWINSZ, 21523)m4_dnl # 0x5413
 
@@ -1037,7 +1054,10 @@ fn editorSave(none) i32 {
 # allocated string where we can append to. This is useful in order to
 # write all the escape sequences in a buffer and flush them to the standard
 # output in a single call, to avoid flickering effects.
-type struc abuf(    b: string    , len: i32    )
+type struc abuf(
+    b: string,
+    len: i32
+)
 
 m4_define(`ABUF_INIT', `$(nil, 0)')m4_dnl
 
