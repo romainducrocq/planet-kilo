@@ -46,7 +46,7 @@ type struc erow(
     chars: string, # Row content.
     render: string, # Row content "rendered" for screen (for TABs).
     hl: *u8, # Syntax highlight type for each character in render.
-    hl_oc: i32 # Row had open comment at end in last syntax highlight check.
+    hl_oc: bool # Row had open comment at end in last syntax highlight check.
 )
 
 type struc editorConfig(
@@ -57,9 +57,9 @@ type struc editorConfig(
     screenrows: i32, # Number of rows that we can show
     screencols: i32, # Number of cols that we can show
     numrows: i32, # Number of rows
-    rawmode: i32, # Is terminal raw mode enabled?
+    rawmode: bool, # Is terminal raw mode enabled?
     row: *struc erow, # Rows
-    dirty: i32, # File modified but not saved.
+    dirty: bool, # File modified but not saved.
     filename: string, # Currently open filename
     statusmsg: [80]char,
     statusmsg_time: u64,
@@ -240,7 +240,7 @@ fn disableRawMode(fd: i32) none {
     # Don't even check the return value as it's too late.
     if E.rawmode {
         tcsetattr(fd, TCSAFLUSH, @orig_termios)
-        E.rawmode = 0
+        E.rawmode = false
     }
 }
 
@@ -287,7 +287,7 @@ fn enableRawMode(fd: i32) i32 {
     if tcsetattr(fd, TCSAFLUSH, @raw) < 0 {
         jump fatal
     }
-    E.rawmode = 1
+    E.rawmode = true
     return 0
 
     label fatal
@@ -478,18 +478,18 @@ fn getWindowSize(ifd: i32, ofd: i32, rows: *i32, cols: *i32) i32 {
 
 # ====================== Syntax highlight color scheme  ====================
 
-fn is_separator(c: i32) i32 {
+fn is_separator(c: i32) bool {
     return c == nil or isspace(c) or strchr(",.()+-/*=~%[];", c) ~= 0
 }
 
 # Return true if the specified row last char is part of a multi line comment
 # that starts at this row or at one before, and does not end at the end
 # of the row but spawns to the next row.
-fn editorRowHasOpenComment(row: *struc erow) i32 {
+fn editorRowHasOpenComment(row: *struc erow) bool {
     if row[].hl and row[].rsize and row[].hl[row[].rsize - 1] == HL_MLCOMMENT and (row[].rsize < 2 or (row[].render[row[].rsize - 2] ~= '*' or row[].render[row[].rsize - 1] ~= '/')) {
-        return 1
+        return true
     }
-    return 0
+    return false
 }
 
 # Set every byte of row->hl (that corresponds to every character in the line)
@@ -503,9 +503,9 @@ fn editorUpdateSyntax(row: *struc erow) none {
     } # No syntax, everything is HL_NORMAL.
 
     i: i32;
-    prev_sep: i32;
-    in_string: i32;
-    in_comment: i32;
+    prev_sep: bool;
+    in_string: bool;
+    in_comment: bool;
     p: string;
     keywords: *string = E.syntax[].keywords
     scs: string = E.syntax[].singleline_comment_start
@@ -519,14 +519,14 @@ fn editorUpdateSyntax(row: *struc erow) none {
         p++
         i++
     }
-    prev_sep = 1 # Tell the parser if 'i' points to start of word.
-    in_string = 0 # Are we inside "" or '' ?
-    in_comment = 0 # Are we inside multi-line comment?
+    prev_sep = true # Tell the parser if 'i' points to start of word.
+    in_string = false # Are we inside "" or '' ?
+    in_comment = false # Are we inside multi-line comment?
 
     # If the previous line has an open comment, this line starts
     # with an open comment state.
     if row[].idx > 0 and editorRowHasOpenComment(@E.row[row[].idx - 1]) {
-        in_comment = 1
+        in_comment = true
     }
 
     loop while p[] {
@@ -544,12 +544,12 @@ fn editorUpdateSyntax(row: *struc erow) none {
                 row[].hl[i + 1] = HL_MLCOMMENT
                 p += 2
                 i += 2
-                in_comment = 0
-                prev_sep = 1
+                in_comment = false
+                prev_sep = true
                 continue
             }
             else {
-                prev_sep = 0
+                prev_sep = false
                 p++
                 i++
                 continue
@@ -560,8 +560,8 @@ fn editorUpdateSyntax(row: *struc erow) none {
             row[].hl[i + 1] = HL_MLCOMMENT
             p += 2
             i += 2
-            in_comment = 1
-            prev_sep = 0
+            in_comment = true
+            prev_sep = false
             continue
         }
 
@@ -572,11 +572,11 @@ fn editorUpdateSyntax(row: *struc erow) none {
                 row[].hl[i + 1] = HL_STRING
                 p += 2
                 i += 2
-                prev_sep = 0
+                prev_sep = false
                 continue
             }
             if p[] == in_string {
-                in_string = 0
+                in_string = false
             }
             p++
             i++
@@ -588,7 +588,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
                 row[].hl[i] = HL_STRING
                 p++
                 i++
-                prev_sep = 0
+                prev_sep = false
                 continue
             }
         }
@@ -598,7 +598,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
             row[].hl[i] = HL_NONPRINT
             p++
             i++
-            prev_sep = 0
+            prev_sep = false
             continue
         }
 
@@ -607,7 +607,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
             row[].hl[i] = HL_NUMBER
             p++
             i++
-            prev_sep = 0
+            prev_sep = false
             continue
         }
 
@@ -630,7 +630,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
                 }
             }
             if keywords[j] ~= nil {
-                prev_sep = 0
+                prev_sep = false
                 continue # We had a keyword match
             }
         }
@@ -644,7 +644,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
     # Propagate syntax change to the next row if the open commen
     # state changed. This may recursively affect all the following rows
     # in the file.
-    oc: i32 = editorRowHasOpenComment(row)
+    oc: bool = editorRowHasOpenComment(row)
     if row[].hl_oc ~= oc and row[].idx + 1 < E.numrows {
         editorUpdateSyntax(@E.row[row[].idx + 1])
     }
@@ -762,7 +762,7 @@ fn editorInsertRow(at: i32, s: string, len: u64) none {
     E.row[at].chars = malloc(len + 1)
     memcpy(E.row[at].chars, s, len + 1)
     E.row[at].hl = nil
-    E.row[at].hl_oc = 0
+    E.row[at].hl_oc = false
     E.row[at].render = nil
     E.row[at].rsize = 0
     E.row[at].idx = at
@@ -984,7 +984,7 @@ fn editorDelChar(none) none {
 fn editorOpen(filename: string) i32 {
     fp: *struc FILE;
 
-    E.dirty = 0
+    E.dirty = false
     free(E.filename)
     fnlen: u64 = strlen(filename) + 1
     E.filename = malloc(fnlen)
@@ -1010,7 +1010,7 @@ fn editorOpen(filename: string) i32 {
     }
     free(line)
     fclose(fp)
-    E.dirty = 0
+    E.dirty = false
     return 0
 }
 
@@ -1034,7 +1034,7 @@ fn editorSave(none) i32 {
 
     close(fd)
     free(buf)
-    E.dirty = 0
+    E.dirty = false
     sd: [20]char;
     editorSetStatusMessage(fmt2(ltostr(sd, len), " bytes written on disk"))
     return 0
@@ -1511,7 +1511,7 @@ fn editorProcessKeypress(fd: i32) none {
     quit_times = KILO_QUIT_TIMES # Reset it to the original value.
 }
 
-fn editorFileWasModified(none) i32 {
+fn editorFileWasModified(none) bool {
     return E.dirty
 }
 
@@ -1547,7 +1547,7 @@ fn initEditor(none) none {
     E.coloff = 0
     E.numrows = 0
     E.row = nil
-    E.dirty = 0
+    E.dirty = false
     E.filename = nil
     E.syntax = nil
     updateWindowSize()
