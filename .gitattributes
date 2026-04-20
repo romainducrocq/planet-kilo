@@ -1,0 +1,5 @@
+*.plx linguist-language=Python
+*.etc linguist-language=Python
+*.plx.m4 linguist-language=Python
+*.i linguist-language=Python
+** linguist-vendored
