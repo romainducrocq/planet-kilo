@@ -1305,7 +1305,7 @@ pub fn editorFind(fd: i32) none {
             find_next = 1
         }
         if find_next {
-            match: string = 0 #  DEFINE NULL
+            next_match: string = 0 #  DEFINE NULL
             match_offset: i32 = 0
             i: i32;
             current: i32 = last_match
@@ -1318,9 +1318,9 @@ pub fn editorFind(fd: i32) none {
                 elif current == E.numrows {
                     current = 0
                 }
-                match = strstr(E.row[current].render, query)
-                if match {
-                    match_offset = match - E.row[current].render
+                next_match = strstr(E.row[current].render, query)
+                if next_match {
+                    match_offset = next_match - E.row[current].render
                     break
                 }
             }
@@ -1333,7 +1333,7 @@ pub fn editorFind(fd: i32) none {
                 saved_hl = 0 #  DEFINE NULL
             }
 
-            if match {
+            if next_match {
                 row: *struc erow = @E.row[current]
                 last_match = current
                 if row[].hl {
