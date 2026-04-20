@@ -263,20 +263,14 @@ struct editorSyntax HLDB[1] = {{// C / C++
     {".c", ".h", ".cpp", ".hpp", ".cc", 0}, // DEFINE NULL
     // C_HL_keywords
     {// C Keywords
-        "auto", "break", "case", "continue", "default", "do", "else", "enum", "extern", "for", "goto", "if", "register",
-        "return", "sizeof", "static", "struct", "switch", "typedef", "union", "volatile", "while", "NULL",
+        "auto", "break", "case", "continue", "default", "do", "else", "enum", "extern", "for", "goto", "if", "register", "return", "sizeof", "static", "struct", "switch", "typedef", "union", "volatile", "while", "NULL",
 
         // C++ Keywords
-        "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "class", "compl", "constexpr", "const_cast",
-        "deltype", "delete", "dynamic_cast", "explicit", "export", "false", "friend", "inline", "mutable", "namespace",
-        "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public",
-        "reinterpret_cast", "static_assert", "static_cast", "template", "this", "thread_local", "throw", "true", "try",
-        "typeid", "typename", "virtual", "xor", "xor_eq",
+        "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "class", "compl", "constexpr", "const_cast", "deltype", "delete", "dynamic_cast", "explicit", "export", "false", "friend", "inline", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "reinterpret_cast", "static_assert", "static_cast", "template", "this", "thread_local", "throw", "true", "try", "typeid", "typename", "virtual", "xor", "xor_eq",
 
         // C types
-        "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|", "short|", "auto|", "const|",
-        "bool|", 0},       // DEFINE NULL
-    "//", "/*", "*/", 3}}; // DEFINE HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS
+        "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|", "short|", "auto|", "const|", "bool|", 0}, // DEFINE NULL
+    "//", "/*", "*/", 3}};                                                                                                        // DEFINE HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS
 
 // ======================= Low level terminal handling ======================
 
@@ -291,9 +285,13 @@ void disableRawMode(int fd) {
 }
 
 // Called at exit to avoid remaining in raw mode.
-void editorAtExit(void) { disableRawMode(STDIN_FILENO); }
+void editorAtExit(void) {
+    disableRawMode(STDIN_FILENO);
+}
 
-void atexit_func(void) { editorAtExit(); }
+void atexit_func(void) {
+    editorAtExit();
+}
 
 // Raw mode: 1960 magic shit.
 int enableRawMode(int fd) {
@@ -489,14 +487,15 @@ failed:
 
 // ====================== Syntax highlight color scheme  ====================
 
-int is_separator(int c) { return c == NULL || isspace(c) || strchr(",.()+-/*=~%[];", c) != 0; } // DEFINE NULL
+int is_separator(int c) {
+    return c == NULL || isspace(c) || strchr(",.()+-/*=~%[];", c) != 0;
+} // DEFINE NULL
 
 // Return true if the specified row last char is part of a multi line comment
 // that starts at this row or at one before, and does not end at the end
 // of the row but spawns to the next row.
 int editorRowHasOpenComment(struct erow* row) {
-    if (row->hl && row->rsize && row->hl[row->rsize - 1] == HL_MLCOMMENT
-        && (row->rsize < 2 || (row->render[row->rsize - 2] != '*' || row->render[row->rsize - 1] != '/')))
+    if (row->hl && row->rsize && row->hl[row->rsize - 1] == HL_MLCOMMENT && (row->rsize < 2 || (row->render[row->rsize - 2] != '*' || row->render[row->rsize - 1] != '/')))
         return 1;
     return 0;
 }
@@ -609,8 +608,7 @@ void editorUpdateSyntax(struct erow* row) {
         }
 
         // Handle numbers
-        if ((isdigit(*p) && (prev_sep || row->hl[i - 1] == HL_NUMBER))
-            || (*p == '.' && i > 0 && row->hl[i - 1] == HL_NUMBER)) {
+        if ((isdigit(*p) && (prev_sep || row->hl[i - 1] == HL_NUMBER)) || (*p == '.' && i > 0 && row->hl[i - 1] == HL_NUMBER)) {
             row->hl[i] = HL_NUMBER;
             p++;
             i++;
@@ -1043,7 +1041,9 @@ void abAppend(struct abuf* ab, char* s, int len) {
     ab->len += len;
 }
 
-void abFree(struct abuf* ab) { free(ab->b); }
+void abFree(struct abuf* ab) {
+    free(ab->b);
+}
 
 // This function writes the whole screen using VT100 escape characters
 // starting from the logical state of the editor in the global state 'E'.
@@ -1062,8 +1062,7 @@ void editorRefreshScreen(void) {
         if (filerow >= E.numrows) {
             if (E.numrows == 0 && y == E.screenrows / 3) {
                 char welcome[80];
-                int welcomelen = snprint(
-                    welcome, sizeof(welcome), fmt3("Kilo editor -- version ", KILO_VERSION, x1b_erase_cur_crlf));
+                int welcomelen = snprint(welcome, sizeof(welcome), fmt3("Kilo editor -- version ", KILO_VERSION, x1b_erase_cur_crlf));
                 int padding = (E.screencols - welcomelen) / 2;
                 if (padding) {
                     abAppend(&ab, "~", 1);
@@ -1128,8 +1127,7 @@ void editorRefreshScreen(void) {
     abAppend(&ab, x1b_set_inv_mode, 4);
     char status[80];
     char rstatus[80];
-    int len = snprint(status, sizeof(status),
-        fmt5(E.filename, " - ", ltostr(sd[0], E.numrows), " lines ", E.dirty ? "(modified)" : ""));
+    int len = snprint(status, sizeof(status), fmt5(E.filename, " - ", ltostr(sd[0], E.numrows), " lines ", E.dirty ? "(modified)" : ""));
     int rlen = snprint(rstatus, sizeof(rstatus), fmt3(ltostr(sd[1], E.rowoff + E.cy + 1), "/", sd[0]));
     if (len > E.screencols)
         len = E.screencols;
@@ -1406,8 +1404,7 @@ void editorProcessKeypress(int fd) {
             // Quit if the file was already saved.
             if (E.dirty && quit_times) {
                 char sd[20];
-                editorSetStatusMessage(fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ",
-                    ltostr(sd, quit_times), " more times to quit."));
+                editorSetStatusMessage(fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ", ltostr(sd, quit_times), " more times to quit."));
                 quit_times--;
                 return;
             }
@@ -1457,7 +1454,9 @@ void editorProcessKeypress(int fd) {
     quit_times = KILO_QUIT_TIMES; // Reset it to the original value.
 }
 
-int editorFileWasModified(void) { return E.dirty; }
+int editorFileWasModified(void) {
+    return E.dirty;
+}
 
 void updateWindowSize(void) {
     if (getWindowSize(STDIN_FILENO, STDOUT_FILENO, &E.screenrows, &E.screencols) == -1) {

@@ -245,11 +245,11 @@ pub HLDB: [1]struc editorSyntax = $($(#  C / C++
     $(".c", ".h", ".cpp", ".hpp", ".cc", 0), #  DEFINE NULL
     #  C_HL_keywords
     $(#  C Keywords
-    "auto", "break", "case", "continue", "default", "do", "else", "enum", "extern", "for", "goto", "if", "register",     "return", "sizeof", "static", "struct", "switch", "typedef", "union", "volatile", "while", "NULL", 
+    "auto", "break", "case", "continue", "default", "do", "else", "enum", "extern", "for", "goto", "if", "register", "return", "sizeof", "static", "struct", "switch", "typedef", "union", "volatile", "while", "NULL", 
     #  C++ Keywords
-    "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "class", "compl", "constexpr", "const_cast",     "deltype", "delete", "dynamic_cast", "explicit", "export", "false", "friend", "inline", "mutable", "namespace",     "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public",     "reinterpret_cast", "static_assert", "static_cast", "template", "this", "thread_local", "throw", "true", "try",     "typeid", "typename", "virtual", "xor", "xor_eq", 
+    "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "class", "compl", "constexpr", "const_cast", "deltype", "delete", "dynamic_cast", "explicit", "export", "false", "friend", "inline", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "reinterpret_cast", "static_assert", "static_cast", "template", "this", "thread_local", "throw", "true", "try", "typeid", "typename", "virtual", "xor", "xor_eq", 
     #  C types
-    "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|", "short|", "auto|", "const|",     "bool|", 0), #  DEFINE NULL
+    "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|", "short|", "auto|", "const|", "bool|", 0), #  DEFINE NULL
     "//", "/*", "*/", 3)) #  DEFINE HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS
 
 #  ======================= Low level terminal handling ======================
@@ -506,7 +506,7 @@ pub fn is_separator(c: i32) i32 {
 #  that starts at this row or at one before, and does not end at the end
 #  of the row but spawns to the next row.
 pub fn editorRowHasOpenComment(row: *struc erow) i32 {
-    if row[].hl and row[].rsize and row[].hl[row[].rsize - 1] == HL_MLCOMMENT     and (row[].rsize < 2 or (row[].render[row[].rsize - 2] ~= '*' or row[].render[row[].rsize - 1] ~= '/')) {
+    if row[].hl and row[].rsize and row[].hl[row[].rsize - 1] == HL_MLCOMMENT and (row[].rsize < 2 or (row[].render[row[].rsize - 2] ~= '*' or row[].render[row[].rsize - 1] ~= '/')) {
         return 1
     }
     return 0
@@ -623,7 +623,7 @@ pub fn editorUpdateSyntax(row: *struc erow) none {
         }
 
         #  Handle numbers
-        if (isdigit(p[]) and (prev_sep or row[].hl[i - 1] == HL_NUMBER))         or (p[] == '.' and i > 0 and row[].hl[i - 1] == HL_NUMBER) {
+        if (isdigit(p[]) and (prev_sep or row[].hl[i - 1] == HL_NUMBER)) or (p[] == '.' and i > 0 and row[].hl[i - 1] == HL_NUMBER) {
             row[].hl[i] = HL_NUMBER
             p++
             i++
@@ -1109,7 +1109,7 @@ pub fn editorRefreshScreen(none) none {
         if filerow >= E.numrows {
             if E.numrows == 0 and y == E.screenrows / 3 {
                 welcome: [80]char;
-                welcomelen: i32 = snprint(                    welcome, sizeof(welcome), fmt3("Kilo editor -- version ", KILO_VERSION, x1b_erase_cur_crlf))
+                welcomelen: i32 = snprint(welcome, sizeof(welcome), fmt3("Kilo editor -- version ", KILO_VERSION, x1b_erase_cur_crlf))
                 padding: i32 = (E.screencols - welcomelen) / 2
                 if padding {
                     abAppend(@ab, "~", 1)
@@ -1178,7 +1178,7 @@ pub fn editorRefreshScreen(none) none {
     abAppend(@ab, x1b_set_inv_mode, 4)
     status: [80]char;
     rstatus: [80]char;
-    len: i32 = snprint(status, sizeof(status),         fmt5(E.filename, " - ", ltostr(sd[0], E.numrows), " lines ", ? E.dirty then "(modified)" else ""))
+    len: i32 = snprint(status, sizeof(status), fmt5(E.filename, " - ", ltostr(sd[0], E.numrows), " lines ", ? E.dirty then "(modified)" else ""))
     rlen: i32 = snprint(rstatus, sizeof(rstatus), fmt3(ltostr(sd[1], E.rowoff + E.cy + 1), "/", sd[0]))
     if len > E.screencols {
         len = E.screencols
@@ -1469,7 +1469,7 @@ pub fn editorProcessKeypress(fd: i32) none {
             #  Quit if the file was already saved.
             if E.dirty and quit_times {
                 sd: [20]char;
-                editorSetStatusMessage(fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ",                     ltostr(sd, quit_times), " more times to quit."))
+                editorSetStatusMessage(fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ", ltostr(sd, quit_times), " more times to quit."))
                 quit_times--
                 return none
             }
