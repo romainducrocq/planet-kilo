@@ -6,59 +6,15 @@
 #          escapes on the terminal.
 
 pub KILO_VERSION: string = "0.0.1-planet" #  DEFINE
-
-
-
-#  ctype.h
-extrn fn isdigit(c: i32) i32;
-extrn fn isprint(c: i32) i32;
-extrn fn isspace(c: i32) i32;
-
-#  errno.h
-extrn fn get_errno(none) i32;
-extrn fn set_errno(value: i32) none;
-
-#  stdio.h
 pub NULL: i32 = 0 #  DEFINE
-type struc FILE;
-extrn fn get_stderr(none) *struc FILE;
-extrn fn fopen(filename: string, mode: string) *struc FILE;
-extrn fn fclose(stream: *struc FILE) i32;
-extrn fn perror(s: string) none;
-extrn fn print(format: string) i32;
-extrn fn fprint(stream: *struc FILE, format: string) i32;
-extrn fn snprint(s: string, n: u64, format: string) i32;
-extrn fn sscan(s: string, valptr: *any, format: string) i32;
-extrn fn fmt2(s1: string, s2: string) string;
-extrn fn fmt3(s1: string, s2: string, s3: string) string;
-extrn fn fmt5(s1: string, s2: string, s3: string, s4: string, s5: string) string;
-extrn fn ltostr(s: string, value: i64) string;
 
-#  stdlib.h
-pub fn atexit_func(none) none;
-extrn fn atexit_f(none) i32;
-extrn fn exit(status: i32) none;
-extrn fn realloc(ptr: *any, size: u64) *any;
-extrn fn free(ptr: *any) none;
-extrn fn malloc(size: u64) *any;
-
-#  string.h
-extrn fn memcpy(s1: *any, s2: *any, n: u64) *any;
-extrn fn memmove(s1: *any, s2: *any, n: u64) *any;
-extrn fn memcmp(s1: *any, s2: *any, n: u64) i32;
-extrn fn strchr(s: string, c: i32) string;
-extrn fn strstr(s1: string, s2: string) string;
-extrn fn memset(s: *any, c: i32, n: u64) *any;
-extrn fn strerror(errnum: i32) string;
-extrn fn strlen(s: string) u64;
-
-#  time.h
-extrn fn time(timer: *u64) u64;
-
-#  signal.h
-pub fn signal_func(sig: i32) none;
-extrn fn signal_f(sig: i32) i32;
-
+use "ctype"
+use "errno"
+use "stdio"
+use "stdlib"
+use "string"
+use "time"
+use "signal"
 
 #  Syntax highlight types
 pub HL_NORMAL: i32 = 0 #  DEFINE
