@@ -258,9 +258,7 @@ pub fn atexit_func(none) none {
 fn enableRawMode(fd: i32) i32 {
     raw: struc termios;
 
-    if E.rawmode {
-        return 0
-    } # Already enabled.
+    if E.rawmode { return 0 } # Already enabled.
     if not isatty(STDIN_FILENO) {
         jump fatal
     }
@@ -311,55 +309,31 @@ fn editorReadKey(fd: i32) i32 {
         match c {
             -> ESC { # escape sequence
                 # If this is just an ESC, we'll timeout here.
-                if read(fd, seq, 1) == 0 {
-                    return ESC
-                }
+                if read(fd, seq, 1) == 0 { return ESC }
             }
-            if read(fd, seq + 1, 1) == 0 {
-                return ESC
-            }
+            if read(fd, seq + 1, 1) == 0 { return ESC }
 
             # ESC [ sequences.
             if seq[0] == '[' {
                 if seq[1] >= '0' and seq[1] <= '9' {
                     # Extended escape, read additional byte.
-                    if read(fd, seq + 2, 1) == 0 {
-                        return ESC
-                    }
+                    if read(fd, seq + 2, 1) == 0 { return ESC }
                     if seq[2] == '~' {
                         match seq[1] {
-                            -> '3' {
-                                return DEL_KEY
-                            }
-                            -> '5' {
-                                return PAGE_UP
-                            }
-                            -> '6' {
-                                return PAGE_DOWN
-                            }
+                            -> '3' { return DEL_KEY }
+                            -> '5' { return PAGE_UP }
+                            -> '6' { return PAGE_DOWN }
                         }
                     }
                 }
                 else {
                     match seq[1] {
-                        -> 'A' {
-                            return ARROW_UP
-                        }
-                        -> 'B' {
-                            return ARROW_DOWN
-                        }
-                        -> 'C' {
-                            return ARROW_RIGHT
-                        }
-                        -> 'D' {
-                            return ARROW_LEFT
-                        }
-                        -> 'H' {
-                            return HOME_KEY
-                        }
-                        -> 'F' {
-                            return END_KEY
-                        }
+                        -> 'A' { return ARROW_UP }
+                        -> 'B' { return ARROW_DOWN }
+                        -> 'C' { return ARROW_RIGHT }
+                        -> 'D' { return ARROW_LEFT }
+                        -> 'H' { return HOME_KEY }
+                        -> 'F' { return END_KEY }
                     }
                 }
             }
@@ -367,18 +341,12 @@ fn editorReadKey(fd: i32) i32 {
             # ESC O sequences.
             elif seq[0] == 'O' {
                 match seq[1] {
-                    -> 'H' {
-                        return HOME_KEY
-                    }
-                    -> 'F' {
-                        return END_KEY
-                    }
+                    -> 'H' { return HOME_KEY }
+                    -> 'F' { return END_KEY }
                 }
             }
             break
-            otherwise {
-                return c
-            }
+            otherwise { return c }
         }
     }
 }
@@ -391,9 +359,7 @@ fn getCursorPosition(ifd: i32, ofd: i32, rows: *i32, cols: *i32) i32 {
     i: u32 = 0
 
     # Report cursor location
-    if write(ofd, x1b_get_cur_pos, 4) ~= 4 {
-        return -1
-    }
+    if write(ofd, x1b_get_cur_pos, 4) ~= 4 { return -1 }
 
     # Read the response: ESC [ rows ; cols R
     loop while i < sizeof(buf) - 1 {
@@ -408,20 +374,14 @@ fn getCursorPosition(ifd: i32, ofd: i32, rows: *i32, cols: *i32) i32 {
     buf[i] = nil
 
     # Parse it.
-    if buf[0] ~= ESC or buf[1] ~= '[' {
-        return -1
-    }
+    if buf[0] ~= ESC or buf[1] ~= '[' { return -1 }
 
     p: string = buf + 1
     loop while ++p and p[] {
         if p[] == ';' {
             p[] = 0
-            if sscan(buf + 2, rows, "%d") ~= 1 {
-                return -1
-            }
-            if sscan(p + 1, cols, "%d") ~= 1 {
-                return -1
-            }
+            if sscan(buf + 2, rows, "%d") ~= 1 { return -1 }
+            if sscan(p + 1, cols, "%d") ~= 1 { return -1 }
             break
         }
     }
@@ -498,9 +458,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
     row[].hl = realloc(row[].hl, row[].rsize)
     memset(row[].hl, HL_NORMAL, row[].rsize)
 
-    if E.syntax == nil {
-        return none
-    } # No syntax, everything is HL_NORMAL.
+    if E.syntax == nil { return none } # No syntax, everything is HL_NORMAL.
 
     i: i32;
     prev_sep: bool;
@@ -656,28 +614,14 @@ fn editorUpdateSyntax(row: *struc erow) none {
 fn editorSyntaxToColor(hl: i32) i32 {
     match hl {
         -> HL_COMMENT {
-            -> HL_MLCOMMENT {
-                return 36
-            }
+            -> HL_MLCOMMENT { return 36 }
         } # cyan
-        -> HL_KEYWORD1 {
-            return 33
-        } # yellow
-        -> HL_KEYWORD2 {
-            return 32
-        } # green
-        -> HL_STRING {
-            return 35
-        } # magenta
-        -> HL_NUMBER {
-            return 31
-        } # red
-        -> HL_MATCH {
-            return 34
-        } # blue
-        otherwise {
-            return 37
-        } # white
+        -> HL_KEYWORD1 { return 33 } # yellow
+        -> HL_KEYWORD2 { return 32 } # green
+        -> HL_STRING { return 35 } # magenta
+        -> HL_NUMBER { return 31 } # red
+        -> HL_MATCH { return 34 } # blue
+        otherwise { return 37 } # white
     }
 }
 
@@ -749,9 +693,7 @@ fn editorUpdateRow(row: *struc erow) none {
 # Insert a row at the specified position, shifting the other rows on the bottom
 # if required.
 fn editorInsertRow(at: i32, s: string, len: u64) none {
-    if at > E.numrows {
-        return none
-    }
+    if at > E.numrows { return none }
     E.row = realloc(E.row, sizeof<struc erow> * (E.numrows + 1))
     if at ~= E.numrows {
         memmove(E.row + at + 1, E.row + at, sizeof(E.row[0]) * (E.numrows - at))
@@ -784,9 +726,7 @@ fn editorFreeRow(row: *struc erow) none {
 fn editorDelRow(at: i32) none {
     row: *struc erow;
 
-    if at >= E.numrows {
-        return none
-    }
+    if at >= E.numrows { return none }
     row = E.row + at
     editorFreeRow(row)
     memmove(E.row + at, E.row + at + 1, sizeof(E.row[0]) * (E.numrows - at - 1))
@@ -862,9 +802,7 @@ fn editorRowAppendString(row: *struc erow, s: string, len: u64) none {
 
 # Delete the character at offset 'at' from the specified row.
 fn editorRowDelChar(row: *struc erow, at: i32) none {
-    if row[].size <= at {
-        return none
-    }
+    if row[].size <= at { return none }
     memmove(row[].chars + at, row[].chars + at + 1, row[].size - at)
     editorUpdateRow(row)
     row[].size--
@@ -942,9 +880,7 @@ fn editorDelChar(none) none {
     filecol: i32 = E.coloff + E.cx
     row: *struc erow = ? (filerow >= E.numrows) then nil else @E.row[filerow]
 
-    if not row or (filecol == 0 and filerow == 0) {
-        return none
-    }
+    if not row or (filecol == 0 and filerow == 0) { return none }
     if filecol == 0 {
         # Handle the case of column 0, we need to move the current line
         # on the right of the previous one.
@@ -1065,9 +1001,7 @@ m4_define(`ABUF_INIT', `$(nil, 0)')m4_dnl
 fn abAppend(ab: *struc abuf, s: string, len: i32) none {
     new: string = realloc(ab[].b, ab[].len + len)
 
-    if new == nil {
-        return none
-    }
+    if new == nil { return none }
     memcpy(new + ab[].len, s, len)
     ab[].b = new
     ab[].len += len
