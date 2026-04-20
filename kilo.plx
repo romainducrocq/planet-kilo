@@ -182,7 +182,8 @@ x1b_reset_modes: [5]char = $(ESC, '[', '0', 'm', nil)
 x1b_reset_modes_clrf: [7]char = $(ESC, '[', '0', 'm', '\r', '\n', nil)
 
 x1b_set_def_fgcol: [6]char = $(ESC, '[', '3', '9', 'm', nil)
-x1b_get_ws_rowcol: [13]char = $(ESC, '[', '9', '9', '9', 'C', ESC, '[', '9', '9', '9', 'B', nil)
+x1b_get_ws_rowcol: [13]char = $(ESC, '[', '9', '9', '9', 'C',
+    ESC, '[', '9', '9', '9', 'B', nil)
 
 # =========================== Syntax highlights DB =========================
 # 
@@ -457,7 +458,8 @@ fn getWindowSize(ifd: i32, ofd: i32, rows: *i32, cols: *i32) i32 {
         # Restore position.
         seq: [32]char;
         sd: [2][20]char;
-        snprint(seq, 32, fmt5(x1b_prefix, ltostr(sd[0], orig_row), ";", ltostr(sd[1], orig_col), "H"))
+        snprint(seq, 32, fmt5(x1b_prefix,
+            ltostr(sd[0], orig_row), ";", ltostr(sd[1], orig_col), "H"))
         if write(ofd, seq, strlen(seq)) == -1; # Can't recover...
         return 0
     }
@@ -481,7 +483,10 @@ fn is_separator(c: i32) bool {
 # that starts at this row or at one before, and does not end at the end
 # of the row but spawns to the next row.
 fn editorRowHasOpenComment(row: *struc erow) bool {
-    if row[].hl and row[].rsize and row[].hl[row[].rsize - 1] == HL_MLCOMMENT and (row[].rsize < 2 or (row[].render[row[].rsize - 2] ~= '*' or row[].render[row[].rsize - 1] ~= '/')) {
+    if row[].hl and row[].rsize and row[].hl[row[].rsize - 1] == HL_MLCOMMENT and (
+            row[].rsize < 2 or (
+                row[].render[row[].rsize - 2] ~= '*' or
+                row[].render[row[].rsize - 1] ~= '/')) {
         return true
     }
     return false
@@ -598,7 +603,8 @@ fn editorUpdateSyntax(row: *struc erow) none {
         }
 
         # Handle numbers
-        if (isdigit(p[]) and (prev_sep or row[].hl[i - 1] == HL_NUMBER)) or (p[] == '.' and i > 0 and row[].hl[i - 1] == HL_NUMBER) {
+        if (isdigit(p[]) and (prev_sep or row[].hl[i - 1] == HL_NUMBER)) or (
+                p[] == '.' and i > 0 and row[].hl[i - 1] == HL_NUMBER) {
             row[].hl[i] = HL_NUMBER
             p++
             i++
@@ -1088,7 +1094,8 @@ fn editorRefreshScreen(none) none {
         if filerow >= E.numrows {
             if E.numrows == 0 and y == E.screenrows / 3 {
                 welcome: [80]char;
-                welcomelen: i32 = snprint(welcome, sizeof(welcome), fmt3("Kilo editor -- version ", KILO_VERSION, x1b_erase_cur_crlf))
+                welcomelen: i32 = snprint(welcome, sizeof(welcome),
+                    fmt3("Kilo editor -- version ", KILO_VERSION, x1b_erase_cur_crlf))
                 padding: i32 = (E.screencols - welcomelen) / 2
                 if padding {
                     abAppend(@ab, "~", 1)
@@ -1140,7 +1147,8 @@ fn editorRefreshScreen(none) none {
                     color: i32 = editorSyntaxToColor(hl[j])
                     if color ~= current_color {
                         buf: [16]char;
-                        clen: i32 = snprint(buf, sizeof(buf), fmt3(x1b_prefix, ltostr(sd[0], color), "m"))
+                        clen: i32 = snprint(buf, sizeof(buf),
+                            fmt3(x1b_prefix, ltostr(sd[0], color), "m"))
                         current_color = color
                         abAppend(@ab, buf, clen)
                     }
@@ -1157,8 +1165,11 @@ fn editorRefreshScreen(none) none {
     abAppend(@ab, x1b_set_inv_mode, 4)
     status: [80]char;
     rstatus: [80]char;
-    len: i32 = snprint(status, sizeof(status), fmt5(E.filename, " - ", ltostr(sd[0], E.numrows), " lines ", ? E.dirty then "(modified)" else ""))
-    rlen: i32 = snprint(rstatus, sizeof(rstatus), fmt3(ltostr(sd[1], E.rowoff + E.cy + 1), "/", sd[0]))
+    len: i32 = snprint(status, sizeof(status),
+        fmt5(E.filename, " - ", ltostr(sd[0], E.numrows), " lines ",
+            ? E.dirty then "(modified)" else ""))
+    rlen: i32 = snprint(rstatus, sizeof(rstatus),
+        fmt3(ltostr(sd[1], E.rowoff + E.cy + 1), "/", sd[0]))
     if len > E.screencols {
         len = E.screencols
     }
@@ -1179,7 +1190,8 @@ fn editorRefreshScreen(none) none {
     abAppend(@ab, x1b_erase_cur, 4)
     msglen: i32 = strlen(E.statusmsg)
     if msglen and time(nil) - E.statusmsg_time < 5 {
-        abAppend(@ab, E.statusmsg, ? msglen <= E.screencols then msglen else E.screencols)
+        abAppend(@ab, E.statusmsg,
+            ? msglen <= E.screencols then msglen else E.screencols)
     }
 
     # Put cursor at its current position. Note that the horizontal position
@@ -1197,7 +1209,8 @@ fn editorRefreshScreen(none) none {
             cx++
         }
     }
-    snprint(buf, sizeof(buf), fmt5(x1b_prefix, ltostr(sd[0], E.cy + 1), ";", ltostr(sd[1], cx), "H"))
+    snprint(buf, sizeof(buf),
+        fmt5(x1b_prefix, ltostr(sd[0], E.cy + 1), ";", ltostr(sd[1], cx), "H"))
     abAppend(@ab, buf, strlen(buf))
     abAppend(@ab, x1b_show_cur, 6) # Show cursor.
     write(STDOUT_FILENO, ab.b, ab.len)
@@ -1438,7 +1451,9 @@ fn editorProcessKeypress(fd: i32) none {
             # Quit if the file was already saved.
             if E.dirty and quit_times {
                 sd: [20]char;
-                editorSetStatusMessage(fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ", ltostr(sd, quit_times), " more times to quit."))
+                editorSetStatusMessage(
+                    fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ",
+                        ltostr(sd, quit_times), " more times to quit."))
                 quit_times--
                 return none
             }
@@ -1474,7 +1489,8 @@ fn editorProcessKeypress(fd: i32) none {
         {
             times: i32 = E.screenrows
             loop while times-- {
-                editorMoveCursor(? c == PAGE_UP then ARROW_UP else ARROW_DOWN)
+                editorMoveCursor(
+                    ? c == PAGE_UP then ARROW_UP else ARROW_DOWN)
             }
         }
         break
