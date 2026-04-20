@@ -5,8 +5,7 @@
 #         by "cloc"). Does not depend on libcurses, directly emits VT100
 #         escapes on the terminal.
 
-KILO_VERSION: string = "0.0.1-planet" # DEFINE
-NULL: i32 = 0 # DEFINE
+m4_define(KILO_VERSION, `"0.0.1-planet"')m4_dnl
 
 use "ctype"
 use "errno"
@@ -17,18 +16,18 @@ use "time"
 use "signal"
 
 # Syntax highlight types
-HL_NORMAL: i32 = 0 # DEFINE
-HL_NONPRINT: i32 = 1 # DEFINE
-HL_COMMENT: i32 = 2 # DEFINE // Single line comment.
-HL_MLCOMMENT: i32 = 3 # DEFINE // Multi-line comment.
-HL_KEYWORD1: i32 = 4 # DEFINE
-HL_KEYWORD2: i32 = 5 # DEFINE
-HL_STRING: i32 = 6 # DEFINE
-HL_NUMBER: i32 = 7 # DEFINE
-HL_MATCH: i32 = 8 # DEFINE // Search match.
+m4_define(HL_NORMAL, 0)m4_dnl
+m4_define(HL_NONPRINT, 1)m4_dnl
+m4_define(HL_COMMENT, 2)m4_dnl # Single line comment.
+m4_define(HL_MLCOMMENT, 3)m4_dnl # Multi-line comment.
+m4_define(HL_KEYWORD1, 4)m4_dnl
+m4_define(HL_KEYWORD2, 5)m4_dnl
+m4_define(HL_STRING, 6)m4_dnl
+m4_define(HL_NUMBER, 7)m4_dnl
+m4_define(HL_MATCH, 8)m4_dnl # Search match.
 
-HL_HIGHLIGHT_STRINGS: i32 = 1 # DEFINE // (1 << 0)
-HL_HIGHLIGHT_NUMBERS: i32 = 2 # DEFINE // (1 << 1)
+m4_define(HL_HIGHLIGHT_STRINGS, 1)m4_dnl # (1 << 0)
+m4_define(HL_HIGHLIGHT_NUMBERS, 2)m4_dnl # (1 << 1)
 
 type struc editorSyntax(    filematch: [6]string    , keywords: [82]string    , singleline_comment_start: [2]char    , multiline_comment_start: [3]char    , multiline_comment_end: [3]char    , flags: i32    )
 
@@ -59,36 +58,34 @@ type struc editorConfig(    cx: i32 # Cursor x and y position in characters
 E: struc editorConfig;
 
 # KEY_ACTION
-KEY_NULL: i32 = 0 # DEFINE // NULL
-CTRL_C: i32 = 3 # DEFINE // Ctrl-c
-CTRL_D: i32 = 4 # DEFINE // Ctrl-d
-CTRL_F: i32 = 6 # DEFINE // Ctrl-f
-CTRL_H: i32 = 8 # DEFINE // Ctrl-h
-TAB: i32 = 9 # DEFINE // Tab
-CTRL_L: i32 = 12 # DEFINE // Ctrl+l
-ENTER: i32 = 13 # DEFINE // Enter
-CTRL_Q: i32 = 17 # DEFINE // Ctrl-q
-CTRL_S: i32 = 19 # DEFINE // Ctrl-s
-CTRL_U: i32 = 21 # DEFINE // Ctrl-u
-ESC: i32 = 27 # DEFINE // Escape
-BACKSPACE: i32 = 127 # DEFINE // Backspace
+m4_define(KEY_NULL, 0)m4_dnl # NULL
+m4_define(CTRL_C, 3)m4_dnl # Ctrl-c
+m4_define(CTRL_D, 4)m4_dnl # Ctrl-d
+m4_define(CTRL_F, 6)m4_dnl # Ctrl-f
+m4_define(CTRL_H, 8)m4_dnl # Ctrl-h
+m4_define(TAB, 9)m4_dnl # Tab
+m4_define(CTRL_L, 12)m4_dnl # Ctrl+l
+m4_define(ENTER, 13)m4_dnl # Enter
+m4_define(CTRL_Q, 17)m4_dnl # Ctrl-q
+m4_define(CTRL_S, 19)m4_dnl # Ctrl-s
+m4_define(CTRL_U, 21)m4_dnl # Ctrl-u
+m4_define(ESC, 27)m4_dnl # Escape
+m4_define(BACKSPACE, 127)m4_dnl # Backspace
 # The following are just soft codes, not really reported by the
 # terminal directly.
-ARROW_LEFT: i32 = 1000 # DEFINE
-ARROW_RIGHT: i32 = 1001 # DEFINE
-ARROW_UP: i32 = 1002 # DEFINE
-ARROW_DOWN: i32 = 1003 # DEFINE
-DEL_KEY: i32 = 1004 # DEFINE
-HOME_KEY: i32 = 1005 # DEFINE
-END_KEY: i32 = 1006 # DEFINE
-PAGE_UP: i32 = 1007 # DEFINE
-PAGE_DOWN: i32 = 1008 # DEFINE
+m4_define(ARROW_LEFT, 1000)m4_dnl
+m4_define(ARROW_RIGHT, 1001)m4_dnl
+m4_define(ARROW_UP, 1002)m4_dnl
+m4_define(ARROW_DOWN, 1003)m4_dnl
+m4_define(DEL_KEY, 1004)m4_dnl
+m4_define(HOME_KEY, 1005)m4_dnl
+m4_define(END_KEY, 1006)m4_dnl
+m4_define(PAGE_UP, 1007)m4_dnl
+m4_define(PAGE_DOWN, 1008)m4_dnl
 
 fn editorSetStatusMessage(format: string) none;
 
 # =========================== POSIX header bindings ========================
-
-
 
 # termios.h
 type struc termios(    c_iflag: u32 # input mode flags
@@ -102,24 +99,24 @@ type struc termios(    c_iflag: u32 # input mode flags
     )
 extrn fn tcsetattr(fd: i32, optional_actions: i32, termios_p: *struc termios) i32;
 extrn fn tcgetattr(fd: i32, termios_p: *struc termios) i32;
-TCSAFLUSH: i32 = 2 # DEFINE
-BRKINT: i32 = 2 # DEFINE // 0000002 Signal interrupt on break.
-INPCK: i32 = 16 # DEFINE // 0000020 Enable input parity check.
-ISTRIP: i32 = 32 # DEFINE // 0000040 Strip 8th bit off characters.
-ICRNL: i32 = 256 # DEFINE // 0000400 Map CR to NL on input.
-IXON: i32 = 1024 # DEFINE // 0002000 Enable start/stop output control.
-OPOST: i32 = 1 # DEFINE // 0000001 Post-process output.
-CS8: i32 = 48 # DEFINE // 0000060
-ECHO: i32 = 8 # DEFINE // 0000010 Enable echo.
-ICANON: i32 = 2 # DEFINE // 0000002 Canonical input (erase and kill processing).
-IEXTEN: i32 = 32768 # DEFINE // 0100000 Enable implementation-defined input processing.
-ISIG: i32 = 1 # DEFINE // 0000001 Enable signals.
-VTIME: i32 = 5 # DEFINE
-VMIN: i32 = 6 # DEFINE
+m4_define(TCSAFLUSH, 2)m4_dnl
+m4_define(BRKINT, 2)m4_dnl # 0000002 Signal interrupt on break.
+m4_define(INPCK, 16)m4_dnl # 0000020 Enable input parity check.
+m4_define(ISTRIP, 32)m4_dnl # 0000040 Strip 8th bit off characters.
+m4_define(ICRNL, 256)m4_dnl # 0000400 Map CR to NL on input.
+m4_define(IXON, 1024)m4_dnl # 0002000 Enable start/stop output control.
+m4_define(OPOST, 1)m4_dnl # 0000001 Post-process output.
+m4_define(CS8, 48)m4_dnl # 0000060
+m4_define(ECHO, 8)m4_dnl # 0000010 Enable echo.
+m4_define(ICANON, 2)m4_dnl # 0000002 Canonical input (erase and kill processing).
+m4_define(IEXTEN, 32768)m4_dnl # 0100000 Enable implementation-defined input processing.
+m4_define(ISIG, 1)m4_dnl # 0000001 Enable signals.
+m4_define(VTIME, 5)m4_dnl
+m4_define(VMIN, 6)m4_dnl
 
 # errno.h
-ENOENT: i32 = 2 # DEFINE // No such file or directory
-ENOTTY: i32 = 25 # DEFINE // Not a typewriter
+m4_define(ENOENT, 2)m4_dnl # No such file or directory
+m4_define(ENOTTY, 25)m4_dnl # Not a typewriter
 
 # stdio.h
 # _POSIX_C_SOURCE 200809L
@@ -128,7 +125,7 @@ extrn fn getline(lineptr: *string, n: *u64, stream: *struc FILE) i64;
 # sys/ioctl.h
 type struc winsize(    ws_row: [2]u8    , ws_col: [2]u8    , ws_xpixel: [2]u8    , ws_ypixel: [2]u8    )
 extrn fn ioctl(fd: i32, request: u64, ws: *struc winsize) i32;
-TIOCGWINSZ: i32 = 21523 # DEFINE // 0x5413
+m4_define(TIOCGWINSZ, 21523)m4_dnl # 0x5413
 
 # unistd.h
 extrn fn isatty(fd: i32) i32;
@@ -136,40 +133,39 @@ extrn fn read(fd: i32, buf: *any, nbytes: u64) i64;
 extrn fn write(fd: i32, buf: *any, n: u64) i64;
 extrn fn ftruncate(fd: i32, length: i64) i32;
 extrn fn close(fd: i32) i32;
-STDIN_FILENO: i32 = 0 # DEFINE // Standard input.
-STDOUT_FILENO: i32 = 1 # DEFINE // Standard output.
+m4_define(STDIN_FILENO, 0)m4_dnl # Standard input.
+m4_define(STDOUT_FILENO, 1)m4_dnl # Standard output.
 
 # fcntl.h
 extrn fn open(path: string, oflag: i32, mode: u32) i32;
-O_RDWR: i32 = 2 # DEFINE 02
-O_CREAT: i32 = 64 # DEFINE 0100
-COPYMODE: i32 = 420 # DEFINE 0644
+m4_define(O_RDWR, 2)m4_dnl # 02
+m4_define(O_CREAT, 64)m4_dnl # 0100
+m4_define(COPYMODE, 420)m4_dnl # 0644
 
 # signal.h
 # Nonstandard signals found in all modern POSIX systems
 # (including both BSD and Linux).
-SIGWINCH: i32 = 28 # Window size change (4.3 BSD, Sun).
-
+m4_define(SIGWINCH, 28)m4_dnl # Window size change (4.3 BSD, Sun).
 
 # =========================== ANSI escape sequences ========================
 # https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b
 
-x1b_prefix: [3]char = $(27, '[', 0) # DEFINE ESC NULL
+x1b_prefix: [3]char = $(ESC, '[', nil)
 
-x1b_move_cur_home: [4]char = $(27, '[', 'H', 0) # DEFINE ESC NULL
-x1b_get_cur_pos: [5]char = $(27, '[', '6', 'n', 0) # DEFINE ESC NULL
-x1b_show_cur: [7]char = $(27, '[', '?', '2', '5', 'h', 0) # DEFINE ESC NULL
-x1b_hide_cur: [7]char = $(27, '[', '?', '2', '5', 'l', 0) # DEFINE ESC NULL
-x1b_erase_cur: [5]char = $(27, '[', '0', 'K', 0) # DEFINE ESC NULL
-x1b_erase_cur_crlf: [7]char = $(27, '[', '0', 'K', '\r', '\n', 0) # DEFINE ESC NULL
-x1b_put_blank_line: [8]char = $('~', 27, '[', '0', 'K', '\r', '\n', 0) # DEFINE ESC NULL
+x1b_move_cur_home: [4]char = $(ESC, '[', 'H', nil)
+x1b_get_cur_pos: [5]char = $(ESC, '[', '6', 'n', nil)
+x1b_show_cur: [7]char = $(ESC, '[', '?', '2', '5', 'h', nil)
+x1b_hide_cur: [7]char = $(ESC, '[', '?', '2', '5', 'l', nil)
+x1b_erase_cur: [5]char = $(ESC, '[', '0', 'K', nil)
+x1b_erase_cur_crlf: [7]char = $(ESC, '[', '0', 'K', '\r', '\n', nil)
+x1b_put_blank_line: [8]char = $('~', ESC, '[', '0', 'K', '\r', '\n', nil)
 
-x1b_set_inv_mode: [5]char = $(27, '[', '7', 'm', 0) # DEFINE ESC NULL
-x1b_reset_modes: [5]char = $(27, '[', '0', 'm', 0) # DEFINE ESC NULL
-x1b_reset_modes_clrf: [7]char = $(27, '[', '0', 'm', '\r', '\n', 0) # DEFINE ESC NULL
+x1b_set_inv_mode: [5]char = $(ESC, '[', '7', 'm', nil)
+x1b_reset_modes: [5]char = $(ESC, '[', '0', 'm', nil)
+x1b_reset_modes_clrf: [7]char = $(ESC, '[', '0', 'm', '\r', '\n', nil)
 
-x1b_set_def_fgcol: [6]char = $(27, '[', '3', '9', 'm', 0) # DEFINE ESC NULL
-x1b_get_ws_rowcol: [13]char = $(27, '[', '9', '9', '9', 'C', 27, '[', '9', '9', '9', 'B', 0) # DEFINE ESC NULL
+x1b_set_def_fgcol: [6]char = $(ESC, '[', '3', '9', 'm', nil)
+x1b_get_ws_rowcol: [13]char = $(ESC, '[', '9', '9', '9', 'C', ESC, '[', '9', '9', '9', 'B', nil)
 
 # =========================== Syntax highlights DB =========================
 # 
@@ -195,18 +191,29 @@ x1b_get_ws_rowcol: [13]char = $(27, '[', '9', '9', '9', 'C', 27, '[', '9', '9', 
 # C / C++
 # Here we define an array of syntax highlights by extensions, keywords,
 # comments delimiters and flags.
-HLDB_ENTRIES: u32 = 1 # DEFINE
-HLDB: [1]struc editorSyntax = $($(# C / C++
+m4_define(HLDB_ENTRIES, 1)m4_dnl
+HLDB: [HLDB_ENTRIES]struc editorSyntax = $($(
     # C_HL_extensions
-    $(".c", ".h", ".cpp", ".hpp", ".cc", 0), # DEFINE NULL
+    $(".c", ".h", ".cpp", ".hpp", ".cc", nil),
     # C_HL_keywords
-    $(# C Keywords
-    "auto", "break", "case", "continue", "default", "do", "else", "enum", "extern", "for", "goto", "if", "register", "return", "sizeof", "static", "struct", "switch", "typedef", "union", "volatile", "while", "NULL", 
+    $(
+    # C Keywords
+    "auto", "break", "case", "continue", "default", "do", "else", "enum",
+    "extern", "for", "goto", "if", "register", "return", "sizeof", "static",
+    "struct", "switch", "typedef", "union", "volatile", "while", "NULL", 
     # C++ Keywords
-    "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "class", "compl", "constexpr", "const_cast", "deltype", "delete", "dynamic_cast", "explicit", "export", "false", "friend", "inline", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "reinterpret_cast", "static_assert", "static_cast", "template", "this", "thread_local", "throw", "true", "try", "typeid", "typename", "virtual", "xor", "xor_eq", 
+    "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "class",
+    "compl", "constexpr", "const_cast", "deltype", "delete", "dynamic_cast",
+    "explicit", "export", "false", "friend", "inline", "mutable", "namespace",
+    "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq",
+    "private", "protected", "public", "reinterpret_cast", "static_assert",
+    "static_cast", "template", "this", "thread_local", "throw", "true", "try",
+    "typeid", "typename", "virtual", "xor", "xor_eq", 
     # C types
-    "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|", "short|", "auto|", "const|", "bool|", 0), # DEFINE NULL
-    "//", "/*", "*/", 3)) # DEFINE HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS
+    "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|",
+    "void|", "short|", "auto|", "const|", "bool|",
+    nil),
+    "//", "/*", "*/", m4_eval(HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS)))
 
 # ======================= Low level terminal handling ======================
 
@@ -286,7 +293,7 @@ fn editorReadKey(fd: i32) i32 {
 
     loop while 1 {
         match c {
-            -> 27 { # DEFINE ESC // escape sequence
+            -> ESC { # escape sequence
                 # If this is just an ESC, we'll timeout here.
                 if read(fd, seq, 1) == 0 {
                     return ESC
@@ -382,7 +389,7 @@ fn getCursorPosition(ifd: i32, ofd: i32, rows: *i32, cols: *i32) i32 {
         }
         i++
     }
-    buf[i] = NULL
+    buf[i] = nil
 
     # Parse it.
     if buf[0] ~= ESC or buf[1] ~= '[' {
@@ -455,8 +462,8 @@ fn getWindowSize(ifd: i32, ofd: i32, rows: *i32, cols: *i32) i32 {
 # ====================== Syntax highlight color scheme  ====================
 
 fn is_separator(c: i32) i32 {
-    return c == NULL or isspace(c) or strchr(",.()+-/*=~%[];", c) ~= 0
-} # DEFINE NULL
+    return c == nil or isspace(c) or strchr(",.()+-/*=~%[];", c) ~= 0
+}
 
 # Return true if the specified row last char is part of a multi line comment
 # that starts at this row or at one before, and does not end at the end
@@ -474,7 +481,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
     row[].hl = realloc(row[].hl, row[].rsize)
     memset(row[].hl, HL_NORMAL, row[].rsize)
 
-    if E.syntax == 0 { # DEFINE NULL
+    if E.syntax == nil {
         return none
     } # No syntax, everything is HL_NORMAL.
 
@@ -605,7 +612,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
                     break
                 }
             }
-            if keywords[j] ~= 0 { # DEFINE NULL
+            if keywords[j] ~= nil {
                 prev_sep = 0
                 continue # We had a keyword match
             }
@@ -630,24 +637,24 @@ fn editorUpdateSyntax(row: *struc erow) none {
 # Maps syntax highlight token types to terminal colors.
 fn editorSyntaxToColor(hl: i32) i32 {
     match hl {
-        -> 2 { # DEFINE HL_COMMENT
-            -> 3 { # DEFINE HL_MLCOMMENT
+        -> HL_COMMENT {
+            -> HL_MLCOMMENT {
                 return 36
             }
         } # cyan
-        -> 4 { # DEFINE HL_KEYWORD1
+        -> HL_KEYWORD1 {
             return 33
         } # yellow
-        -> 5 { # DEFINE HL_KEYWORD2
+        -> HL_KEYWORD2 {
             return 32
         } # green
-        -> 6 { # DEFINE HL_STRING
+        -> HL_STRING {
             return 35
         } # magenta
-        -> 7 { # DEFINE HL_NUMBER
+        -> HL_NUMBER {
             return 31
         } # red
-        -> 8 { # DEFINE HL_MATCH
+        -> HL_MATCH {
             return 34
         } # blue
         otherwise {
@@ -665,8 +672,8 @@ fn editorSelectSyntaxHighlight(filename: string) none {
         loop while s[].filematch[i] {
             p: string;
             patlen: i32 = strlen(s[].filematch[i])
-            if (p = strstr(filename, s[].filematch[i])) ~= 0 { # DEFINE NULL
-                if s[].filematch[i][0] ~= '.' or p[patlen] == NULL {
+            if (p = strstr(filename, s[].filematch[i])) ~= nil {
+                if s[].filematch[i][0] ~= '.' or p[patlen] == nil {
                     E.syntax = s
                     return none
                 }
@@ -679,6 +686,7 @@ fn editorSelectSyntaxHighlight(filename: string) none {
 # ======================= Editor rows implementation =======================
 
 # Update the rendered version and the syntax highlight of a row.
+m4_define(MAX_U32, 4294967295u)m4_dnl
 fn editorUpdateRow(row: *struc erow) none {
     tabs: u32 = 0
     nonprint: u32 = 0
@@ -695,7 +703,7 @@ fn editorUpdateRow(row: *struc erow) none {
     }
 
     allocsize: u64 = cast<u64>(row[].size) + tabs * 8 + nonprint * 9 + 1
-    if allocsize > 4294967295u {
+    if allocsize > MAX_U32 {
         print("Some line of the edited file is too long for kilo\n")
         exit(1)
     }
@@ -714,7 +722,7 @@ fn editorUpdateRow(row: *struc erow) none {
         }
     }
     row[].rsize = idx
-    row[].render[idx] = NULL
+    row[].render[idx] = nil
 
     # Update the syntax highlighting attributes of the row.
     editorUpdateSyntax(row)
@@ -736,9 +744,9 @@ fn editorInsertRow(at: i32, s: string, len: u64) none {
     E.row[at].size = len
     E.row[at].chars = malloc(len + 1)
     memcpy(E.row[at].chars, s, len + 1)
-    E.row[at].hl = 0 # DEFINE NULL
+    E.row[at].hl = nil
     E.row[at].hl_oc = 0
-    E.row[at].render = 0 # DEFINE NULL
+    E.row[at].render = nil
     E.row[at].rsize = 0
     E.row[at].idx = at
     editorUpdateRow(E.row + at)
@@ -776,7 +784,7 @@ fn editorDelRow(at: i32) none {
 # integer pointed by 'buflen' with the size of the string, escluding
 # the final nulterm.
 fn editorRowsToString(buflen: *i32) string {
-    buf: string = 0 # DEFINE NULL
+    buf: string = nil
     p: string;
     totlen: i32 = 0
     j: i32;
@@ -795,7 +803,7 @@ fn editorRowsToString(buflen: *i32) string {
         p[] = '\n'
         p++
     }
-    p[] = NULL
+    p[] = nil
     return buf
 }
 
@@ -809,7 +817,7 @@ fn editorRowInsertChar(row: *struc erow, at: i32, c: i32) none {
         # In the next line +2 means: new char and null term.
         row[].chars = realloc(row[].chars, row[].size + padlen + 2)
         memset(row[].chars + row[].size, ' ', padlen)
-        row[].chars[row[].size + padlen + 1] = NULL
+        row[].chars[row[].size + padlen + 1] = nil
         row[].size += padlen + 1
     }
     else {
@@ -829,7 +837,7 @@ fn editorRowAppendString(row: *struc erow, s: string, len: u64) none {
     row[].chars = realloc(row[].chars, row[].size + len + 1)
     memcpy(row[].chars + row[].size, s, len)
     row[].size += len
-    row[].chars[row[].size] = NULL
+    row[].chars[row[].size] = nil
     editorUpdateRow(row)
     E.dirty++
 }
@@ -849,7 +857,7 @@ fn editorRowDelChar(row: *struc erow, at: i32) none {
 fn editorInsertChar(c: i32) none {
     filerow: i32 = E.rowoff + E.cy
     filecol: i32 = E.coloff + E.cx
-    row: *struc erow = ? (filerow >= E.numrows) then 0 else @E.row[filerow] # DEFINE NULL
+    row: *struc erow = ? (filerow >= E.numrows) then nil else @E.row[filerow]
 
     # If the row where the cursor is currently located does not exist in our
     # logical representaion of the file, add enough empty rows as needed.
@@ -874,7 +882,7 @@ fn editorInsertChar(c: i32) none {
 fn editorInsertNewline(none) none {
     filerow: i32 = E.rowoff + E.cy
     filecol: i32 = E.coloff + E.cx
-    row: *struc erow = ? (filerow >= E.numrows) then 0 else @E.row[filerow] # DEFINE NULL
+    row: *struc erow = ? (filerow >= E.numrows) then nil else @E.row[filerow]
 
     if not row {
         if filerow == E.numrows {
@@ -895,7 +903,7 @@ fn editorInsertNewline(none) none {
         # We are in the middle of a line. Split it between two rows.
         editorInsertRow(filerow + 1, row[].chars + filecol, row[].size - filecol)
         row = @E.row[filerow]
-        row[].chars[filecol] = NULL
+        row[].chars[filecol] = nil
         row[].size = filecol
         editorUpdateRow(row)
     }
@@ -914,7 +922,7 @@ fn editorInsertNewline(none) none {
 fn editorDelChar(none) none {
     filerow: i32 = E.rowoff + E.cy
     filecol: i32 = E.coloff + E.cx
-    row: *struc erow = ? (filerow >= E.numrows) then 0 else @E.row[filerow] # DEFINE NULL
+    row: *struc erow = ? (filerow >= E.numrows) then nil else @E.row[filerow]
 
     if not row or (filecol == 0 and filerow == 0) {
         return none
@@ -925,7 +933,7 @@ fn editorDelChar(none) none {
         filecol = E.row[filerow - 1].size
         editorRowAppendString(@E.row[filerow - 1], row[].chars, row[].size)
         editorDelRow(filerow)
-        row = 0 # DEFINE NULL
+        row = nil
         if E.cy == 0 {
             E.rowoff--
         }
@@ -974,12 +982,12 @@ fn editorOpen(filename: string) i32 {
         return 1
     }
 
-    line: string = 0 # DEFINE NULL
+    line: string = nil
     linecap: u64 = 0
     linelen: i64;
     loop while (linelen = getline(@line, @linecap, fp)) ~= -1 {
         if linelen and (line[linelen - 1] == '\n' or line[linelen - 1] == '\r') {
-            line[--linelen] = NULL
+            line[--linelen] = nil
         }
         editorInsertRow(E.numrows, line, linelen)
     }
@@ -1031,12 +1039,12 @@ fn editorSave(none) i32 {
 # output in a single call, to avoid flickering effects.
 type struc abuf(    b: string    , len: i32    )
 
-# #define ABUF_INIT { NULL, 0 }
+m4_define(`ABUF_INIT', `$(nil, 0)')m4_dnl
 
 fn abAppend(ab: *struc abuf, s: string, len: i32) none {
     new: string = realloc(ab[].b, ab[].len + len)
 
-    if new == 0 { # DEFINE NULL
+    if new == nil {
         return none
     }
     memcpy(new + ab[].len, s, len)
@@ -1055,7 +1063,7 @@ fn editorRefreshScreen(none) none {
     r: *struc erow;
     buf: [32]char;
     sd: [2][20]char;
-    ab: struc abuf = $(0, 0) # DEFINE ABUF_INIT; NULL
+    ab: struc abuf = ABUF_INIT
 
     abAppend(@ab, x1b_hide_cur, 6) # Hide cursor.
     abAppend(@ab, x1b_move_cur_home, 3) # Go home.
@@ -1155,7 +1163,7 @@ fn editorRefreshScreen(none) none {
     # Second row depends on E.statusmsg and the status message update time.
     abAppend(@ab, x1b_erase_cur, 4)
     msglen: i32 = strlen(E.statusmsg)
-    if msglen and time(0) - E.statusmsg_time < 5 { # DEFINE NULL
+    if msglen and time(nil) - E.statusmsg_time < 5 {
         abAppend(@ab, E.statusmsg, ? msglen <= E.screencols then msglen else E.screencols)
     }
 
@@ -1165,7 +1173,7 @@ fn editorRefreshScreen(none) none {
     j: i32;
     cx: i32 = 1
     filerow: i32 = E.rowoff + E.cy
-    row: *struc erow = ? (filerow >= E.numrows) then 0 else @E.row[filerow] # DEFINE NULL
+    row: *struc erow = ? (filerow >= E.numrows) then nil else @E.row[filerow]
     if row {
         loop j = E.coloff while j < (E.cx + E.coloff) .. j++ {
             if j < row[].size and row[].chars[j] == TAB {
@@ -1185,30 +1193,28 @@ fn editorRefreshScreen(none) none {
 # end of the screen.
 fn editorSetStatusMessage(format: string) none {
     snprint(E.statusmsg, sizeof(E.statusmsg), format)
-    E.statusmsg_time = time(0) # DEFINE NULL
+    E.statusmsg_time = time(nil)
 }
 
 # =============================== Find mode ================================
 
-KILO_QUERY_LEN: i32 = 256 # DEFINE
+m4_define(KILO_QUERY_LEN, 256)m4_dnl
 
 fn editorFind(fd: i32) none {
-    query: [257]char = $(0) # DEFINE KILO_QUERY_LEN + 1
+    query: [m4_incr(KILO_QUERY_LEN)]char = $(0)
     qlen: i32 = 0
     last_match: i32 = -1 # Last line where a match was found. -1 for none.
     find_next: i32 = 0 # if 1 search next, if -1 search prev.
     saved_hl_line: i32 = -1 # No saved HL
-    saved_hl: string = 0 # DEFINE NULL
+    saved_hl: string = nil
 
-    # #define FIND_RESTORE_HL
-    #     do {
-    #         if (saved_hl) {
-    #             memcpy(E.row[saved_hl_line].hl, saved_hl, E.row[saved_hl_line].rsize);
-    #             free(saved_hl);
-    #             saved_hl = NULL;
-    #         }
-    #     }
-    #     while (0)
+m4_define(`FIND_RESTORE_HL', `
+    if saved_hl {
+        memcpy(E.row[saved_hl_line].hl, saved_hl, E.row[saved_hl_line].rsize)
+        free(saved_hl)
+        saved_hl = nil
+    }
+')m4_dnl
 
     # Save the cursor position in order to restore it later.
     saved_cx: i32 = E.cx
@@ -1223,7 +1229,7 @@ fn editorFind(fd: i32) none {
         c: i32 = editorReadKey(fd)
         if c == DEL_KEY or c == CTRL_H or c == BACKSPACE {
             if qlen ~= 0 {
-                query[--qlen] = NULL
+                query[--qlen] = nil
             }
             last_match = -1
         }
@@ -1234,11 +1240,7 @@ fn editorFind(fd: i32) none {
                 E.coloff = saved_coloff
                 E.rowoff = saved_rowoff
             }
-            if saved_hl { # DEFINE FIND_RESTORE_HL
-                memcpy(E.row[saved_hl_line].hl, saved_hl, E.row[saved_hl_line].rsize)
-                free(saved_hl)
-                saved_hl = 0 # DEFINE NULL
-            }
+            FIND_RESTORE_HL
             editorSetStatusMessage("")
             return none
         }
@@ -1251,7 +1253,7 @@ fn editorFind(fd: i32) none {
         elif isprint(c) {
             if qlen < KILO_QUERY_LEN {
                 query[qlen++] = c
-                query[qlen] = NULL
+                query[qlen] = nil
                 last_match = -1
             }
         }
@@ -1261,7 +1263,7 @@ fn editorFind(fd: i32) none {
             find_next = 1
         }
         if find_next {
-            next_match: string = 0 # DEFINE NULL
+            next_match: string = nil
             match_offset: i32 = 0
             i: i32;
             current: i32 = last_match
@@ -1283,11 +1285,7 @@ fn editorFind(fd: i32) none {
             find_next = 0
 
             # Highlight
-            if saved_hl { # DEFINE FIND_RESTORE_HL
-                memcpy(E.row[saved_hl_line].hl, saved_hl, E.row[saved_hl_line].rsize)
-                free(saved_hl)
-                saved_hl = 0 # DEFINE NULL
-            }
+            FIND_RESTORE_HL
 
             if next_match {
                 row: *struc erow = @E.row[current]
@@ -1320,10 +1318,10 @@ fn editorMoveCursor(key: i32) none {
     filerow: i32 = E.rowoff + E.cy
     filecol: i32 = E.coloff + E.cx
     rowlen: i32;
-    row: *struc erow = ? (filerow >= E.numrows) then 0 else @E.row[filerow] # DEFINE NULL
+    row: *struc erow = ? (filerow >= E.numrows) then nil else @E.row[filerow]
 
     match key {
-        -> 1000 { # DEFINE ARROW_LEFT
+        -> ARROW_LEFT {
             if E.cx == 0 {
                 if E.coloff {
                     E.coloff--
@@ -1344,7 +1342,7 @@ fn editorMoveCursor(key: i32) none {
             }
         }
         break
-        -> 1001 { # DEFINE ARROW_RIGHT
+        -> ARROW_RIGHT {
             if row and filecol < row[].size {
                 if E.cx == E.screencols - 1 {
                     E.coloff++
@@ -1365,7 +1363,7 @@ fn editorMoveCursor(key: i32) none {
             }
         }
         break
-        -> 1002 { # DEFINE ARROW_UP
+        -> ARROW_UP {
             if E.cy == 0 {
                 if E.rowoff {
                     E.rowoff--
@@ -1376,7 +1374,7 @@ fn editorMoveCursor(key: i32) none {
             }
         }
         break
-        -> 1003 { # DEFINE ARROW_DOWN
+        -> ARROW_DOWN {
             if filerow < E.numrows {
                 if E.cy == E.screenrows - 1 {
                     E.rowoff++
@@ -1391,7 +1389,7 @@ fn editorMoveCursor(key: i32) none {
     # Fix cx if the current line has not enough chars.
     filerow = E.rowoff + E.cy
     filecol = E.coloff + E.cx
-    row = ? (filerow >= E.numrows) then 0 else @E.row[filerow] # DEFINE NULL
+    row = ? (filerow >= E.numrows) then nil else @E.row[filerow]
     rowlen = ? row then row[].size else 0
     if filecol > rowlen {
         E.cx -= filecol - rowlen
@@ -1404,24 +1402,24 @@ fn editorMoveCursor(key: i32) none {
 
 # Process events arriving from the standard input, which is, the user
 # is typing stuff on the terminal.
-KILO_QUIT_TIMES: i32 = 3 # DEFINE
+m4_define(KILO_QUIT_TIMES, 3)m4_dnl
 fn editorProcessKeypress(fd: i32) none {
     # When the file is modified, requires Ctrl-q to be pressed N times
     # before actually quitting.
-    data quit_times: i32 = 3 # DEFINE KILO_QUIT_TIMES
+    data quit_times: i32 = KILO_QUIT_TIMES
 
     c: i32 = editorReadKey(fd)
     match c {
-        -> 13 { # DEFINE ENTER // Enter
+        -> ENTER { # Enter
             editorInsertNewline()
         }
         break
-        -> 3 { # DEFINE CTRL_C // Ctrl-c
+        -> CTRL_C { # Ctrl-c
             # We ignore ctrl-c, it can't be so simple to lose the changes
             # to the edited file.
             break
         }
-        -> 17 { # DEFINE CTRL_Q // Ctrl-q
+        -> CTRL_Q { # Ctrl-q
             # Quit if the file was already saved.
             if E.dirty and quit_times {
                 sd: [20]char;
@@ -1432,24 +1430,24 @@ fn editorProcessKeypress(fd: i32) none {
         }
         exit(0)
         break
-        -> 19 { # DEFINE CTRL_S // Ctrl-s
+        -> CTRL_S { # Ctrl-s
             editorSave()
         }
         break
-        -> 6 { # DEFINE CTRL_F
+        -> CTRL_F {
             editorFind(fd)
         }
         break
-        -> 127 { # DEFINE BACKSPACE // Backspace
-            -> 8 { # DEFINE CTRL_H    // Ctrl-h
-                -> 1004 { # DEFINE DEL_KEY
+        -> BACKSPACE { # Backspace
+            -> CTRL_H { # Ctrl-h
+                -> DEL_KEY {
                     editorDelChar()
                 }
             }
         }
         break
-        -> 1007 { # DEFINE PAGE_UP
-            -> 1008 { # DEFINE PAGE_DOWN
+        -> PAGE_UP {
+            -> PAGE_DOWN {
                 if c == PAGE_UP and E.cy ~= 0 {
                     E.cy = 0
                 }
@@ -1466,21 +1464,21 @@ fn editorProcessKeypress(fd: i32) none {
         }
         break
 
-        -> 1002 { # DEFINE ARROW_UP
-            -> 1003 { # DEFINE ARROW_DOWN
-                -> 1000 { # DEFINE ARROW_LEFT
-                    -> 1001 { # DEFINE ARROW_RIGHT
+        -> ARROW_UP {
+            -> ARROW_DOWN {
+                -> ARROW_LEFT {
+                    -> ARROW_RIGHT {
                         editorMoveCursor(c)
                     }
                 }
             }
         }
         break
-        -> 12 { # DEFINE CTRL_L // ctrl+l, clear screen
+        -> CTRL_L { # ctrl+l, clear screen
             # Just refresht the line as side effect.
             break
         }
-        -> 27 { # DEFINE ESC
+        -> ESC {
             # Nothing to do for ESC in this mode.
             break
         }
@@ -1528,10 +1526,10 @@ fn initEditor(none) none {
     E.rowoff = 0
     E.coloff = 0
     E.numrows = 0
-    E.row = 0 # DEFINE NULL
+    E.row = nil
     E.dirty = 0
-    E.filename = 0 # DEFINE NULL
-    E.syntax = 0 # DEFINE NULL
+    E.filename = nil
+    E.syntax = nil
     updateWindowSize()
     signal_f(SIGWINCH)
 }
