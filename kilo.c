@@ -223,7 +223,7 @@ char x1b_get_cur_pos[5] = {27, '[', '6', 'n', 0};                     // DEFINE 
 char x1b_show_cur[7] = {27, '[', '?', '2', '5', 'h', 0};              // DEFINE ESC NULL
 char x1b_hide_cur[7] = {27, '[', '?', '2', '5', 'l', 0};              // DEFINE ESC NULL
 char x1b_erase_cur[5] = {27, '[', '0', 'K', 0};                       // DEFINE ESC NULL
-char X1B_erase_cur_crlf[7] = {27, '[', '0', 'K', '\r', '\n', 0};      // DEFINE ESC NULL
+char x1b_erase_cur_crlf[7] = {27, '[', '0', 'K', '\r', '\n', 0};      // DEFINE ESC NULL
 char x1b_put_blank_line[8] = {'~', 27, '[', '0', 'K', '\r', '\n', 0}; // DEFINE ESC NULL
 
 char x1b_set_inv_mode[5] = {27, '[', '7', 'm', 0};                 // DEFINE ESC NULL
@@ -1065,7 +1065,7 @@ void editorRefreshScreen(void) {
             if (E.numrows == 0 && y == E.screenrows / 3) {
                 char welcome[80];
                 int welcomelen = snprint(
-                    welcome, sizeof(welcome), fmt3("Kilo editor -- version ", KILO_VERSION, X1B_erase_cur_crlf));
+                    welcome, sizeof(welcome), fmt3("Kilo editor -- version ", KILO_VERSION, x1b_erase_cur_crlf));
                 int padding = (E.screencols - welcomelen) / 2;
                 if (padding) {
                     abAppend(&ab, "~", 1);
@@ -1122,8 +1122,7 @@ void editorRefreshScreen(void) {
             }
         }
         abAppend(&ab, x1b_set_def_fgcol, 5);
-        abAppend(&ab, x1b_erase_cur, 4);
-        abAppend(&ab, "\r\n", 2);
+        abAppend(&ab, x1b_erase_cur_crlf, 6);
     }
 
     // Create a two rows status. First row:
