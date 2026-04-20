@@ -301,14 +301,12 @@ fn editorReadKey(fd: i32) i32 {
     nread: i32;
     c: char;
     seq: [3]char;
-    loop while (nread = read(fd, @c, 1)) == 0 {
-        ;
-    }
+    loop while (nread = read(fd, @c, 1)) == 0;
     if nread == -1 {
         exit(1)
     }
 
-    loop while 1 {
+    loop {
         match c {
             -> ESC { # escape sequence
                 # If this is just an ESC, we'll timeout here.
@@ -460,10 +458,7 @@ fn getWindowSize(ifd: i32, ofd: i32, rows: *i32, cols: *i32) i32 {
         seq: [32]char;
         sd: [2][20]char;
         snprint(seq, 32, fmt5(x1b_prefix, ltostr(sd[0], orig_row), ";", ltostr(sd[1], orig_col), "H"))
-        if write(ofd, seq, strlen(seq)) == -1 {
-            # Can't recover...
-            ;
-        }
+        if write(ofd, seq, strlen(seq)) == -1; # Can't recover...
         return 0
     }
     else {
@@ -1242,8 +1237,8 @@ m4_define(`FIND_RESTORE_HL', `
     saved_coloff: i32 = E.coloff
     saved_rowoff: i32 = E.rowoff
 
-    loop while 1 {
-        editorSetStatusMessage(fmt3("Search: ", query, " (Use ESC/Arrows/Enter)"))
+    loop {
+        editorSetStatusMessage(fmt3("Search: ", query, " (Use Esc/Arrows/Enter)"))
         editorRefreshScreen()
 
         c: i32 = editorReadKey(fd)
@@ -1565,7 +1560,7 @@ pub fn main(argc: i32, argv: *string) i32 {
     editorOpen(argv[1])
     enableRawMode(STDIN_FILENO)
     editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find")
-    loop while 1 {
+    loop {
         editorRefreshScreen()
         editorProcessKeypress(STDIN_FILENO)
     }
