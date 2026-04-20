@@ -469,9 +469,8 @@ int getWindowSize(int ifd, int ofd, int* rows, int* cols) {
 
         // Restore position.
         char seq[32];
-        char sd1[20] = {0};
-        char sd2[20] = {0};
-        snprint(seq, 32, fmt5(x1b_prefix, ltostr(sd1, orig_row), ";", ltostr(sd2, orig_col), "H"));
+        char sd[2][20];
+        snprint(seq, 32, fmt5(x1b_prefix, ltostr(sd[0], orig_row), ";", ltostr(sd[1], orig_col), "H"));
         if (write(ofd, seq, strlen(seq)) == -1) {
             // Can't recover...
             ;
@@ -1009,7 +1008,7 @@ int editorSave(void) {
     close(fd);
     free(buf);
     E.dirty = 0;
-    char sd[20] = {0};
+    char sd[20];
     editorSetStatusMessage(fmt2(ltostr(sd, len), " bytes written on disk"));
     return 0;
 
@@ -1052,8 +1051,7 @@ void editorRefreshScreen(void) {
     int y;
     struct erow* r;
     char buf[32];
-    char sd1[20] = {0};
-    char sd2[20] = {0};
+    char sd[2][20];
     struct abuf ab = {0, 0}; // DEFINE ABUF_INIT; NULL
 
     abAppend(&ab, x1b_hide_cur, 6);      // Hide cursor.
@@ -1113,7 +1111,7 @@ void editorRefreshScreen(void) {
                     int color = editorSyntaxToColor(hl[j]);
                     if (color != current_color) {
                         char buf[16];
-                        int clen = snprint(buf, sizeof(buf), fmt3(x1b_prefix, ltostr(sd1, color), "m"));
+                        int clen = snprint(buf, sizeof(buf), fmt3(x1b_prefix, ltostr(sd[0], color), "m"));
                         current_color = color;
                         abAppend(&ab, buf, clen);
                     }
@@ -1131,8 +1129,8 @@ void editorRefreshScreen(void) {
     char status[80];
     char rstatus[80];
     int len = snprint(status, sizeof(status),
-        fmt5(E.filename, " - ", ltostr(sd1, E.numrows), " lines ", E.dirty ? "(modified)" : ""));
-    int rlen = snprint(rstatus, sizeof(rstatus), fmt3(ltostr(sd2, E.rowoff + E.cy + 1), "/", sd1));
+        fmt5(E.filename, " - ", ltostr(sd[0], E.numrows), " lines ", E.dirty ? "(modified)" : ""));
+    int rlen = snprint(rstatus, sizeof(rstatus), fmt3(ltostr(sd[1], E.rowoff + E.cy + 1), "/", sd[0]));
     if (len > E.screencols)
         len = E.screencols;
     abAppend(&ab, status, len);
@@ -1168,7 +1166,7 @@ void editorRefreshScreen(void) {
             cx++;
         }
     }
-    snprint(buf, sizeof(buf), fmt5(x1b_prefix, ltostr(sd1, E.cy + 1), ";", ltostr(sd2, cx), "H"));
+    snprint(buf, sizeof(buf), fmt5(x1b_prefix, ltostr(sd[0], E.cy + 1), ";", ltostr(sd[1], cx), "H"));
     abAppend(&ab, buf, strlen(buf));
     abAppend(&ab, x1b_show_cur, 6); // Show cursor.
     write(STDOUT_FILENO, ab.b, ab.len);
@@ -1407,7 +1405,7 @@ void editorProcessKeypress(int fd) {
         case 17: // DEFINE CTRL_Q // Ctrl-q
             // Quit if the file was already saved.
             if (E.dirty && quit_times) {
-                char sd[20] = {0};
+                char sd[20];
                 editorSetStatusMessage(fmt3("WARNING!!! File has unsaved changes. Press Ctrl-Q ",
                     ltostr(sd, quit_times), " more times to quit."));
                 quit_times--;
