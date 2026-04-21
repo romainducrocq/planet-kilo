@@ -28,6 +28,7 @@ m4_define(HL_MATCH, 8)m4_dnl # Search match.
 
 m4_define(HL_HIGHLIGHT_STRINGS, 1)m4_dnl # (1 << 0)
 m4_define(HL_HIGHLIGHT_NUMBERS, 2)m4_dnl # (1 << 1)
+m4_define(HL_HIGHLIGHT_PLANET, 1000)m4_dnl
 
 type struc editorSyntax(
     filematch: [6]string,
@@ -206,11 +207,12 @@ x1b_get_ws_rowcol: [13]char = $(ESC, '[', '9', '9', '9', 'C',
 # 
 # There is no support to highlight patterns currently.
 
-# C / C++
 # Here we define an array of syntax highlights by extensions, keywords,
 # comments delimiters and flags.
-m4_define(HLDB_ENTRIES, 1)m4_dnl
-HLDB: [HLDB_ENTRIES]struc editorSyntax = $($(
+m4_define(HLDB_ENTRIES, 2)m4_dnl
+HLDB: [HLDB_ENTRIES]struc editorSyntax = $(
+# C / C++
+$(
     # C_HL_extensions
     $(".c", ".h", ".cpp", ".hpp", ".cc", nil),
     # C_HL_keywords
@@ -231,7 +233,31 @@ HLDB: [HLDB_ENTRIES]struc editorSyntax = $($(
     "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|",
     "void|", "short|", "auto|", "const|", "bool|",
     nil),
-    "//", "/*", "*/", m4_eval(HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS)))
+    "//",
+    "/*",
+    "*/",
+    m4_eval(HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS)),
+# Planet
+$(
+    # PLX_HL_extensions
+    $(".plx.m4", ".plx", ".etc", nil),
+    # PLX_HL_keywords
+    $(
+    # Planet Keywords
+    "and", "break", "continue", "elif", "else", "false", "if", "import", "jump",
+    "label", "loop", "match", "not", "nil", "or", "otherwise", "return", "then",
+    "true", "use", "while",
+    # Planet types
+    "any|", "bool|", "cast|", "char|", "data|", "extrn|", "f64|", "fn|", "i32|",
+    "i64|", "i8|", "none|", "pub|", "sizeof|", "string|", "struc|", "type|",
+    "u32|", "u64|", "u8|", "union|",
+    # TODO match for m4_*
+    nil),
+    "#",
+    $(nil),
+    $(nil),
+    HL_HIGHLIGHT_PLANET
+))
 
 # ======================= Low level terminal handling ======================
 
@@ -435,10 +461,12 @@ fn getWindowSize(ifd: i32, ofd: i32, rows: *i32, cols: *i32) i32 {
 
 # ====================== Syntax highlight color scheme  ====================
 
+# TODO
 fn is_separator(c: i32) bool {
     return c == nil or isspace(c) or strchr(",.()+-/*=~%[];", c) ~= 0
 }
 
+# TODO
 # Return true if the specified row last char is part of a multi line comment
 # that starts at this row or at one before, and does not end at the end
 # of the row but spawns to the next row.
