@@ -251,7 +251,7 @@ $(
     "any|", "bool|", "cast|", "char|", "data|", "extrn|", "f64|", "fn|", "i32|",
     "i64|", "i8|", "none|", "pub|", "sizeof|", "string|", "struc|", "type|",
     "u32|", "u64|", "u8|", "union|",
-    # TODO match for m4_*
+    # TODO match for m4_* and `' strings
     nil),
     "#",
     $(nil),
@@ -517,7 +517,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
 
     loop while p[] {
         # Handle // comments.
-        if prev_sep and p[] == scs[0] and (p + 1)[] == scs[1] {
+        if prev_sep and p[] == scs[0] and (not scs[1] or (p + 1)[] == scs[1]) {
             # From here to end is a comment
             memset(row[].hl + i, HL_COMMENT, row[].size - i)
             return none
