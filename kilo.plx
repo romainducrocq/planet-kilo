@@ -234,7 +234,7 @@ $(
     # C types
     "bool|", "char|", "const|", "double|", "float|", "int|", "long|", "short|",
     "signed|", "unsigned|", "void|",
-    # Preprocessor
+    # C preprocessor
     "#define&", "#elif&", "#elifdef&", "#elifndef&", "#else&", "#endif&",
     "#error&", "#if&", "#ifdef&", "#ifndef&", "#include&", "#line&", "#pragma&",
     "#undef&", "#warning&",
@@ -257,7 +257,15 @@ $(
     "any|", "bool|", "cast|", "char|", "data|", "extrn|", "f64|", "fn|", "i32|",
     "i64|", "i8|", "none|", "pub|", "sizeof|", "string|", "struc|", "type|",
     "u32|", "u64|", "u8|", "union|",
-    # TODO match for m4_* and `' strings
+    # m4 preprocessor
+    # TODO handle m4_dnl at end of line
+    "`m4_changecom'&", "`m4_changequote'&", "`m4_decr'&", "`m4_define'&",
+    "`m4_defn'&", "`m4_divert'&", "`m4_divnum'&", "`m4_dlen'&", "`m4_dnl'&",
+    "`m4_dumpdef'&", "`m4_errprint'&", "`m4_eval'&", "`m4_ifdef'&", "`m4_ifelse'&",
+    "`m4_include'&", "`m4_incr'&", "`m4_index'&", "`m4_len'&", "`m4_m4exit'&",
+    "`m4_m4wrap'&", "`m4_maketemp'&", "`m4_popdef'&", "`m4_pushdef'&", "`m4_shift'&",
+    "`m4_sinclude'&", "`m4_substr'&", "`m4_syscmd'&", "`m4_sysval'&", "`m4_traceoff'&",
+    "`m4_traceon'&", "`m4_translit'&", "`m4_undefine'&", "`m4_undivert'&",
     nil),
     "#",
     $(nil),
@@ -573,6 +581,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
             continue
         }
         else {
+            # TODO handle `' strings
             if p[] == '"' or p[] == '\'' {
                 in_string = p[]
                 row[].hl[i] = HL_STRING
