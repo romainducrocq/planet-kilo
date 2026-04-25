@@ -16,16 +16,16 @@ $ . ~/.bashrc # or . ~/.zshrc or . ~/.shrc
 
 ### Build and Run
 
-Build with the planet compiler:  
+Build with the `planet` compiler  
 ```
 planet -O3 -E -latexit -lsignal kilo.plx
 ```
-and start editing:  
+and start your coding session :coffee:  
 ```
 ./kilo <filename>
 ```
 
-TODO add demo
+![Demo gif](demo-planet-kilo.gif)  
 
 ****
 
