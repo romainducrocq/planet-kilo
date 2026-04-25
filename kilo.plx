@@ -32,7 +32,7 @@ m4_define(HL_HIGHLIGHT_PLANET, 1000)m4_dnl
 
 type struc editorSyntax(
     filematch: [6]string,
-    keywords: [82]string,
+    keywords: [100]string,
     singleline_comment_start: [2]char,
     multiline_comment_start: [3]char,
     multiline_comment_end: [3]char,
@@ -196,8 +196,8 @@ x1b_get_ws_rowcol: [13]char = $(ESC, '[', '9', '9', '9', 'C',
 # Otherwise the pattern is just searched inside the filenme, like "Makefile").
 # 
 # The list of keywords to highlight is just a list of words, however if they
-# a trailing '|' character is added at the end, they are highlighted in
-# a different color, so that you can have two different sets of keywords.
+# a trailing '|' or '&' character is added at the end, they are highlighted in
+# a different color, so that you can have three different sets of keywords.
 # 
 # Finally add a stanza in the HLDB global variable with two two arrays
 # of strings, and a set of flags in order to enable highlighting of
@@ -223,16 +223,21 @@ $(
     "extern", "for", "goto", "if", "register", "return", "sizeof", "static",
     "struct", "switch", "typedef", "union", "volatile", "while", "NULL", 
     # C++ Keywords
-    "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "class",
-    "compl", "constexpr", "const_cast", "deltype", "delete", "dynamic_cast",
-    "explicit", "export", "false", "friend", "inline", "mutable", "namespace",
-    "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq",
-    "private", "protected", "public", "reinterpret_cast", "static_assert",
-    "static_cast", "template", "this", "thread_local", "throw", "true", "try",
-    "typeid", "typename", "virtual", "xor", "xor_eq", 
+    "alignas", "alignof", "and", "and_eq", "asm", "bitand", "bitor", "catch",
+    "class", "compl", "constexpr", "const_cast", "decltype", "delete",
+    "dynamic_cast", "explicit", "export", "false", "final", "friend", "inline",
+    "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr",
+    "operator", "or", "or_eq", "override", "private", "protected", "public",
+    "reinterpret_cast", "static_assert", "static_cast", "template", "this",
+    "thread_local", "throw", "true", "try", "typeid", "typename", "using",
+    "virtual", "xor", "xor_eq",
     # C types
-    "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|",
-    "void|", "short|", "auto|", "const|", "bool|",
+    "bool|", "char|", "const|", "double|", "float|", "int|", "long|", "short|",
+    "signed|", "unsigned|", "void|",
+    # Preprocessor
+    "#define&", "#elif&", "#elifdef&", "#elifndef&", "#else&", "#endif&",
+    "#error&", "#if&", "#ifdef&", "#ifndef&", "#include&", "#line&", "#pragma&",
+    "#undef&", "#warning&",
     nil),
     "//",
     "/*",
@@ -604,14 +609,16 @@ fn editorUpdateSyntax(row: *struc erow) none {
             loop j = 0 while keywords[j] .. j++ {
                 klen: i32 = strlen(keywords[j])
                 kw2: i32 = keywords[j][klen - 1] == '|'
-                if kw2 {
+                kw3: i32 = keywords[j][klen - 1] == '&'
+                if kw2 or kw3 {
                     klen--
                 }
 
                 if klen >= ileft;
                 elif not memcmp(p, keywords[j], klen) and is_separator((p + klen)[]) {
                     # Keyword
-                    memset(row[].hl + i, ? kw2 then HL_KEYWORD2 else HL_KEYWORD1, klen)
+                    memset(row[].hl + i, ? kw3 then HL_NUMBER else (
+                        ? kw2 then HL_KEYWORD2 else HL_KEYWORD1), klen)
                     p += klen
                     i += klen
                     break
