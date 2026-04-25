@@ -487,7 +487,7 @@ fn editorRowHasOpenComment(row: *struc erow) bool {
     if row[].hl and row[].rsize and row[].hl[row[].rsize - 1] == HL_MLCOMMENT and (
             row[].rsize < 2 or (
                 row[].render[row[].rsize - 2] ~= mce[0] or
-                row[].render[row[].rsize - 1] ~= mce[1]) {
+                row[].render[row[].rsize - 1] ~= mce[1])) {
         return true
     }
     return false
