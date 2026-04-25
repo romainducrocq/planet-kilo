@@ -258,7 +258,6 @@ $(
     "i64|", "i8|", "none|", "pub|", "sizeof|", "string|", "struc|", "type|",
     "u32|", "u64|", "u8|", "union|",
     # m4 preprocessor
-    # TODO handle m4_dnl at end of line
     "`m4_changecom'&", "`m4_changequote'&", "`m4_decr'&", "`m4_define'&",
     "`m4_defn'&", "`m4_divert'&", "`m4_divnum'&", "`m4_dlen'&", "`m4_dnl'&",
     "`m4_dumpdef'&", "`m4_errprint'&", "`m4_eval'&", "`m4_ifdef'&", "`m4_ifelse'&",
@@ -479,6 +478,7 @@ fn is_separator(c: i32) bool {
     return c == nil or isspace(c) or strchr(",.()+-/*=~%[];:", c) ~= 0
 }
 
+# TODO this is C specific
 # Return true if the specified row last char is part of a multi line comment
 # that starts at this row or at one before, and does not end at the end
 # of the row but spawns to the next row.
@@ -492,6 +492,8 @@ fn editorRowHasOpenComment(row: *struc erow) bool {
     return false
 }
 
+# TODO handle keyword at end of line
+m4_define(BACKTICK_CHAR, 96)m4_dnl
 # Set every byte of row->hl (that corresponds to every character in the line)
 # to the right syntax highlight type (HL_* defines).
 fn editorUpdateSyntax(row: *struc erow) none {
@@ -581,9 +583,8 @@ fn editorUpdateSyntax(row: *struc erow) none {
             continue
         }
         else {
-            # TODO handle `' strings
-            if p[] == '"' or p[] == '\'' {
-                in_string = p[]
+            if p[] == '"' or p[] == '\''  or p[] == BACKTICK_CHAR {
+                in_string = ? p[] == BACKTICK_CHAR then '\'' else p[]
                 row[].hl[i] = HL_STRING
                 p++
                 i++
