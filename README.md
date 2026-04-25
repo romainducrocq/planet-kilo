@@ -1,4 +1,4 @@
-## Kilo text editor - port to planet
+## Port of the Kilo text editor to planet
 
 TODO add description
 
