@@ -461,12 +461,10 @@ fn getWindowSize(ifd: i32, ofd: i32, rows: *i32, cols: *i32) i32 {
 
 # ====================== Syntax highlight color scheme  ====================
 
-# TODO
 fn is_separator(c: i32) bool {
-    return c == nil or isspace(c) or strchr(",.()+-/*=~%[];", c) ~= 0
+    return c == nil or isspace(c) or strchr(",.()+-/*=~%[];:", c) ~= 0
 }
 
-# TODO
 # Return true if the specified row last char is part of a multi line comment
 # that starts at this row or at one before, and does not end at the end
 # of the row but spawns to the next row.
@@ -519,7 +517,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
         # Handle // comments.
         if prev_sep and p[] == scs[0] and (not scs[1] or (p + 1)[] == scs[1]) {
             # From here to end is a comment
-            memset(row[].hl + i, HL_COMMENT, row[].size - i)
+            memset(row[].hl + i, HL_COMMENT, row[].rsize - i)
             return none
         }
 
@@ -554,7 +552,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
         # Handle "" and ''
         if in_string {
             row[].hl[i] = HL_STRING
-            if p[] == '\\' {
+            if p[] == '\\' and (p + 1)[] {
                 row[].hl[i + 1] = HL_STRING
                 p += 2
                 i += 2
@@ -601,6 +599,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
         # Handle keywords and lib calls
         if prev_sep {
             j: i32;
+            ileft: i32 = row[].rsize - i
             loop j = 0 while keywords[j] .. j++ {
                 klen: i32 = strlen(keywords[j])
                 kw2: i32 = keywords[j][klen - 1] == '|'
@@ -608,7 +607,8 @@ fn editorUpdateSyntax(row: *struc erow) none {
                     klen--
                 }
 
-                if not memcmp(p, keywords[j], klen) and is_separator((p + klen)[]) {
+                if klen >= ileft;
+                elif not memcmp(p, keywords[j], klen) and is_separator((p + klen)[]) {
                     # Keyword
                     memset(row[].hl + i, ? kw2 then HL_KEYWORD2 else HL_KEYWORD1, klen)
                     p += klen
@@ -759,7 +759,7 @@ fn editorDelRow(at: i32) none {
     editorFreeRow(row)
     memmove(E.row + at, E.row + at + 1, sizeof(E.row[0]) * (E.numrows - at - 1))
     loop j: i32 = at while j < E.numrows - 1 .. j++ {
-        E.row[j].idx++
+        E.row[j].idx--
     }
     E.numrows--
     E.dirty++
