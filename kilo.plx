@@ -182,6 +182,7 @@ x1b_set_inv_mode: [5]char = $(ESC, '[', '7', 'm', nil)
 x1b_reset_modes: [5]char = $(ESC, '[', '0', 'm', nil)
 x1b_reset_modes_clrf: [7]char = $(ESC, '[', '0', 'm', '\r', '\n', nil)
 
+x1b_clear_screen: [5]char = $(ESC, '[', '2', 'J', nil)
 x1b_set_def_fgcol: [6]char = $(ESC, '[', '3', '9', 'm', nil)
 x1b_get_ws_rowcol: [13]char = $(ESC, '[', '9', '9', '9', 'C',
     ESC, '[', '9', '9', '9', 'B', nil)
@@ -1419,6 +1420,9 @@ fn editorProcessKeypress(fd: i32) none {
                 quit_times--
                 return none
             }
+            # Clear screen before exit
+            write(STDOUT_FILENO, x1b_clear_screen, 4)
+            write(STDOUT_FILENO, x1b_move_cur_home, 3)
         }
         exit(0)
         break
