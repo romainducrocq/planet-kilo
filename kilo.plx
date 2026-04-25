@@ -478,21 +478,21 @@ fn is_separator(c: i32) bool {
     return c == nil or isspace(c) or strchr(",.()+-/*=~%[];:", c) ~= 0
 }
 
-# TODO this is C specific
 # Return true if the specified row last char is part of a multi line comment
 # that starts at this row or at one before, and does not end at the end
 # of the row but spawns to the next row.
 fn editorRowHasOpenComment(row: *struc erow) bool {
+    mce: string = E.syntax[].multiline_comment_end
+    if not mce[0] { return false }
     if row[].hl and row[].rsize and row[].hl[row[].rsize - 1] == HL_MLCOMMENT and (
             row[].rsize < 2 or (
-                row[].render[row[].rsize - 2] ~= '*' or
-                row[].render[row[].rsize - 1] ~= '/')) {
+                row[].render[row[].rsize - 2] ~= mce[0] or
+                row[].render[row[].rsize - 1] ~= mce[1]) {
         return true
     }
     return false
 }
 
-# TODO handle keyword at end of line
 m4_define(BACKTICK_CHAR, 96)m4_dnl
 # Set every byte of row->hl (that corresponds to every character in the line)
 # to the right syntax highlight type (HL_* defines).
@@ -624,7 +624,7 @@ fn editorUpdateSyntax(row: *struc erow) none {
                     klen--
                 }
 
-                if klen >= ileft;
+                if klen > ileft;
                 elif not memcmp(p, keywords[j], klen) and is_separator((p + klen)[]) {
                     # Keyword
                     memset(row[].hl + i, ? kw3 then HL_NUMBER else (
