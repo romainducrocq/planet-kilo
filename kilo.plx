@@ -100,15 +100,19 @@ fn editorSetStatusMessage(format: string) none;
 # =========================== POSIX header bindings ========================
 
 # termios.h
+
+m4_define(tcflag_t, `m4_ifdef(`__APPLE__', u64, u32)')m4_dnl
+m4_define(speed_t, `m4_ifdef(`__APPLE__', u64, u32)')m4_dnl
+m4_define(NCCS, `m4_ifdef(`__linux__', 32, 20)')m4_dnl
 type struc termios(
-    c_iflag: u32, # input mode flags
-    c_oflag: u32, # output mode flags
-    c_cflag: u32, # control mode flags
-    c_lflag: u32, # local mode flags
-    c_line: u8, # line discipline
-    c_cc: [32]u8, # control characters
-    c_ispeed: u32, # input speed
-    c_ospeed: u32 # output speed
+    c_iflag: tcflag_t, # input mode flags
+    c_oflag: tcflag_t, # output mode flags
+    c_cflag: tcflag_t, # control mode flags
+    c_lflag: tcflag_t, # local mode flags
+m4_ifdef(`__linux__', `c_line: u8,', `')m4_dnl # line discipline
+    c_cc: [NCCS]u8, # control characters
+    c_ispeed: speed_t, # input speed
+    c_ospeed: speed_t # output speed
 )
 extrn fn tcsetattr(fd: i32, optional_actions: i32, termios_p: *struc termios) i32;
 extrn fn tcgetattr(fd: i32, termios_p: *struc termios) i32;
@@ -117,15 +121,18 @@ m4_define(BRKINT, 2)m4_dnl # 0000002 Signal interrupt on break.
 m4_define(INPCK, 16)m4_dnl # 0000020 Enable input parity check.
 m4_define(ISTRIP, 32)m4_dnl # 0000040 Strip 8th bit off characters.
 m4_define(ICRNL, 256)m4_dnl # 0000400 Map CR to NL on input.
-m4_define(IXON, 1024)m4_dnl # 0002000 Enable start/stop output control.
+m4_define(IXON, `m4_ifdef(`__linux__', 1024, 512)')m4_dnl # 0002000
+# Enable start/stop output control.
 m4_define(OPOST, 1)m4_dnl # 0000001 Post-process output.
-m4_define(CS8, 48)m4_dnl # 0000060
+m4_define(CS8, `m4_ifdef(`__linux__', 48, 768)')m4_dnl # 0000060
 m4_define(ECHO, 8)m4_dnl # 0000010 Enable echo.
-m4_define(ICANON, 2)m4_dnl # 0000002 Canonical input (erase and kill processing).
-m4_define(IEXTEN, 32768)m4_dnl # 0100000 Enable implementation-defined input processing.
-m4_define(ISIG, 1)m4_dnl # 0000001 Enable signals.
-m4_define(VTIME, 5)m4_dnl
-m4_define(VMIN, 6)m4_dnl
+m4_define(ICANON, `m4_ifdef(`__linux__', 2, 256)')m4_dnl # 0000002
+# Canonical input (erase and kill processing).
+m4_define(IEXTEN, `m4_ifdef(`__linux__', 32768, 1024)')m4_dnl # 0100000
+# Enable implementation-defined input processing.
+m4_define(ISIG, `m4_ifdef(`__linux__', 1, 128)')m4_dnl # 0000001 Enable signals.
+m4_define(VTIME, `m4_ifdef(`__linux__', 5, 17)')m4_dnl
+m4_define(VMIN, `m4_ifdef(`__linux__', 6, 16)')m4_dnl
 
 # errno.h
 m4_define(ENOENT, 2)m4_dnl # No such file or directory
@@ -143,7 +150,7 @@ type struc winsize(
     ws_ypixel: [2]u8
 )
 extrn fn ioctl(fd: i32, request: u64, ws: *struc winsize) i32;
-m4_define(TIOCGWINSZ, 21523)m4_dnl # 0x5413
+m4_define(TIOCGWINSZ, `m4_ifdef(`__linux__', 21523, 1074295912)')m4_dnl # 0x5413
 
 # unistd.h
 extrn fn isatty(fd: i32) i32;
@@ -157,7 +164,7 @@ m4_define(STDOUT_FILENO, 1)m4_dnl # Standard output.
 # fcntl.h
 extrn fn open(path: string, oflag: i32, mode: u32) i32;
 m4_define(O_RDWR, 2)m4_dnl # 02
-m4_define(O_CREAT, 64)m4_dnl # 0100
+m4_define(O_CREAT, `m4_ifdef(`__linux__', 64, 512)')m4_dnl # 0100
 m4_define(COPYMODE, 420)m4_dnl # 0644
 
 # signal.h
