@@ -572,17 +572,29 @@ fn editorUpdateSyntax(row: *struc erow) none {
             continue
         }
 
-        # Handle "" and ''
+        # Handle "", '' and `'
+        data bticks: i32 = 0
         if in_string {
             row[].hl[i] = HL_STRING
-            if p[] == '\\' and (p + 1)[] {
+            if bticks {
+                 if p[] == BACKTICK_CHAR {
+                     bticks++
+                 }
+                 elif p[] == '\'' {
+                     bticks--
+                 }
+                 if bticks < 0 {
+                     bticks = 0
+                 }
+            }
+            elif p[] == '\\' and (p + 1)[] {
                 row[].hl[i + 1] = HL_STRING
                 p += 2
                 i += 2
                 prev_sep = false
                 continue
             }
-            if p[] == in_string {
+            if p[] == in_string and not bticks {
                 in_string = false
             }
             p++
@@ -591,7 +603,14 @@ fn editorUpdateSyntax(row: *struc erow) none {
         }
         else {
             if p[] == '"' or p[] == '\''  or p[] == BACKTICK_CHAR {
-                in_string = ? p[] == BACKTICK_CHAR then '\'' else p[]
+                if p[] == BACKTICK_CHAR {
+                    in_string = '\''
+                    bticks = 1
+                }
+                else {
+                    in_string = p[]
+                    bticks = 0
+                }
                 row[].hl[i] = HL_STRING
                 p++
                 i++
