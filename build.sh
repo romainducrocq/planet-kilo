@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
 KERNEL_NAME="$(uname -s)"
+OS_MACRO="__linux__"
 if [[ "${KERNEL_NAME}" == "Darwin"* ]]; then
-    KERNEL_NAME="__APPLE__"
+    OS_MACRO="__APPLE__"
 elif [[ "${KERNEL_NAME}" == "FreeBSD"* ]]; then
-    KERNEL_NAME="__FreeBSD__"
-else
-    KERNEL_NAME="__linux__"
+    OS_MACRO="__FreeBSD__"
 fi
 
-planet -v -O3 -E -D${KERNEL_NAME} -latexit -lsignal kilo.plx
+planet -v -O3 -E -D${OS_MACRO} -latexit -lsignal kilo.plx
 exit ${?}
