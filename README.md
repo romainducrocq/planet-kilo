@@ -10,7 +10,7 @@ Try it out: `HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find`
 
 ### Quick install
 
-See the repo of the language for more info, or get started now:  
+See the language's repo for more info, or get started now:  
 ```
 $ git clone --depth 1 --branch master --recurse-submodules --shallow-submodules https://github.com/romainducrocq/planet
 $ cd planet/bin/
@@ -18,11 +18,13 @@ $ ./configure.sh
 $ ./make.sh
 $ ./install.sh
 $ . ~/.bashrc # or . ~/.zshrc or . ~/.shrc
+$ ./selfhost.sh
+$ ./selfhost.sh
 ```
 
 ### Build and Run
 
-Build with the `planet` compiler  
+Build `kilo.plx` with the `planet` compiler  
 ```
 ./build.sh
 ```
