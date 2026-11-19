@@ -412,6 +412,8 @@ pub fn sds_cat(s: sds, t: string) sds {
 #
 # The function returns the length of the null-terminated string
 # representation stored at s.
+m4_define(`MINUS_CHAR', `45')m4_dnl
+m4_define(`ZERO_CHAR', `48')m4_dnl
 m4_define(`SDS_LLSTR_SIZE', `21')m4_dnl
 fn sds_ll2str(s: string, value: i64) i32 {
     p: string;
@@ -437,11 +439,11 @@ fn sds_ll2str(s: string, value: i64) i32 {
 
     p = s
     loop .. while v {
-        p++[] = 48 + (v % 10)
+        p++[] = ZERO_CHAR + (v % 10)
         v /= 10
     }
     if value < 0 {
-        p++[] = 45
+        p++[] = MINUS_CHAR
     }
 
     # Compute length and add null term.
@@ -470,7 +472,7 @@ fn sds_ull2str(s: string, v: u64) i32 {
     # an reversed string.
     p = s
     loop .. while v {
-        p++[] = 48 + (v % 10)
+        p++[] = ZERO_CHAR + (v % 10)
         v /= 10
     }
 
