@@ -31,7 +31,7 @@ and start your coding session :coffee:
 ./kilo <filename>
 ```
 
-![Demo gif](demo-planet-kilo.gif)  
+![Demo gif](demo-kilo.gif)  
 
 ****
 
