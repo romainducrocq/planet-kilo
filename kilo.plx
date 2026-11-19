@@ -131,10 +131,6 @@ m4_define(VMIN, `m4_ifdef(`__linux__', 6, 16)')m4_dnl
 m4_define(ENOENT, 2)m4_dnl # No such file or directory
 m4_define(ENOTTY, 25)m4_dnl # Not a typewriter
 
-# stdio.h
-# _POSIX_C_SOURCE 200809L
-extrn fn getline(lineptr: *string, n: *u64, stream: *struc FILE) i64;
-
 # sys/ioctl.h
 type struc winsize(ws_row: [2]u8, ws_col: [2]u8, ws_xpixel: [2]u8, ws_ypixel: [2]u8)
 
