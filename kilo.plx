@@ -5,7 +5,7 @@
 #         by "cloc"). Does not depend on libcurses, directly emits VT100
 #         escapes on the terminal.
 
-m4_define(KILO_VERSION, `"0.0.1-planet"')m4_dnl
+m4_define(`KILO_VERSION', `"0.0.1-planet"')m4_dnl
 
 use "ctype"
 use "errno"
@@ -16,19 +16,19 @@ use "time"
 use "signal"
 
 # Syntax highlight types
-m4_define(HL_NORMAL, 0)m4_dnl
-m4_define(HL_NONPRINT, 1)m4_dnl
-m4_define(HL_COMMENT, 2)m4_dnl # Single line comment.
-m4_define(HL_MLCOMMENT, 3)m4_dnl # Multi-line comment.
-m4_define(HL_KEYWORD1, 4)m4_dnl
-m4_define(HL_KEYWORD2, 5)m4_dnl
-m4_define(HL_STRING, 6)m4_dnl
-m4_define(HL_NUMBER, 7)m4_dnl
-m4_define(HL_MATCH, 8)m4_dnl # Search match.
+m4_define(`HL_NORMAL', `0')m4_dnl
+m4_define(`HL_NONPRINT', `1')m4_dnl
+m4_define(`HL_COMMENT', `2')m4_dnl # Single line comment.
+m4_define(`HL_MLCOMMENT', `3')m4_dnl # Multi-line comment.
+m4_define(`HL_KEYWORD1', `4')m4_dnl
+m4_define(`HL_KEYWORD2', `5')m4_dnl
+m4_define(`HL_STRING', `6')m4_dnl
+m4_define(`HL_NUMBER', `7')m4_dnl
+m4_define(`HL_MATCH', `8')m4_dnl # Search match.
 
-m4_define(HL_HIGHLIGHT_STRINGS, 1)m4_dnl # (1 << 0)
-m4_define(HL_HIGHLIGHT_NUMBERS, 2)m4_dnl # (1 << 1)
-m4_define(HL_HIGHLIGHT_PLANET, 1000)m4_dnl
+m4_define(`HL_HIGHLIGHT_STRINGS', `1')m4_dnl # (1 << 0)
+m4_define(`HL_HIGHLIGHT_NUMBERS', `2')m4_dnl # (1 << 1)
+m4_define(`HL_HIGHLIGHT_PLANET', `1000')m4_dnl
 
 type struc editorSyntax(
     filematch: [6]string, keywords: [100]string,
@@ -63,39 +63,39 @@ type struc editorConfig(
 E: struc editorConfig;
 
 # KEY_ACTION
-m4_define(KEY_NULL, 0)m4_dnl # NULL
-m4_define(CTRL_C, 3)m4_dnl # Ctrl-c
-m4_define(CTRL_D, 4)m4_dnl # Ctrl-d
-m4_define(CTRL_F, 6)m4_dnl # Ctrl-f
-m4_define(CTRL_H, 8)m4_dnl # Ctrl-h
-m4_define(TAB, 9)m4_dnl # Tab
-m4_define(CTRL_L, 12)m4_dnl # Ctrl+l
-m4_define(ENTER, 13)m4_dnl # Enter
-m4_define(CTRL_Q, 17)m4_dnl # Ctrl-q
-m4_define(CTRL_S, 19)m4_dnl # Ctrl-s
-m4_define(CTRL_U, 21)m4_dnl # Ctrl-u
-m4_define(ESC, 27)m4_dnl # Escape
-m4_define(BACKSPACE, 127)m4_dnl # Backspace
+m4_define(`KEY_NULL', `0')m4_dnl # NULL
+m4_define(`CTRL_C', `3')m4_dnl # Ctrl-c
+m4_define(`CTRL_D', `4')m4_dnl # Ctrl-d
+m4_define(`CTRL_F', `6')m4_dnl # Ctrl-f
+m4_define(`CTRL_H', `8')m4_dnl # Ctrl-h
+m4_define(`TAB', `9')m4_dnl # Tab
+m4_define(`CTRL_L', `12')m4_dnl # Ctrl+l
+m4_define(`ENTER', `13')m4_dnl # Enter
+m4_define(`CTRL_Q', `17')m4_dnl # Ctrl-q
+m4_define(`CTRL_S', `19')m4_dnl # Ctrl-s
+m4_define(`CTRL_U', `21')m4_dnl # Ctrl-u
+m4_define(`ESC', `27')m4_dnl # Escape
+m4_define(`BACKSPACE', `127')m4_dnl # Backspace
 # The following are just soft codes, not really reported by the
 # terminal directly.
-m4_define(ARROW_LEFT, 1000)m4_dnl
-m4_define(ARROW_RIGHT, 1001)m4_dnl
-m4_define(ARROW_UP, 1002)m4_dnl
-m4_define(ARROW_DOWN, 1003)m4_dnl
-m4_define(DEL_KEY, 1004)m4_dnl
-m4_define(HOME_KEY, 1005)m4_dnl
-m4_define(END_KEY, 1006)m4_dnl
-m4_define(PAGE_UP, 1007)m4_dnl
-m4_define(PAGE_DOWN, 1008)m4_dnl
+m4_define(`ARROW_LEFT', `1000')m4_dnl
+m4_define(`ARROW_RIGHT', `1001')m4_dnl
+m4_define(`ARROW_UP', `1002')m4_dnl
+m4_define(`ARROW_DOWN', `1003')m4_dnl
+m4_define(`DEL_KEY', `1004')m4_dnl
+m4_define(`HOME_KEY', `1005')m4_dnl
+m4_define(`END_KEY', `1006')m4_dnl
+m4_define(`PAGE_UP', `1007')m4_dnl
+m4_define(`PAGE_DOWN', `1008')m4_dnl
 
 fn editorSetStatusMessage(format: string) none;
 
 # =========================== POSIX header bindings ========================
 
 # termios.h
-m4_define(tcflag_t, `m4_ifdef(`__APPLE__', u64, u32)')m4_dnl
-m4_define(speed_t, `m4_ifdef(`__APPLE__', u64, u32)')m4_dnl
-m4_define(NCCS, `m4_ifdef(`__linux__', 32, 20)')m4_dnl
+m4_define(`tcflag_t', `m4_ifdef(`__APPLE__', `u64', `u32')`'')m4_dnl
+m4_define(`speed_t', `m4_ifdef(`__APPLE__', `u64', `u32')`'')m4_dnl
+m4_define(`NCCS', `m4_ifdef(`__linux__', `32', `20')`'')m4_dnl
 type struc termios(
     c_iflag: tcflag_t, # input mode flags
     c_oflag: tcflag_t, # output mode flags
@@ -109,33 +109,33 @@ m4_ifdef(`__linux__', `c_line: u8,', `')m4_dnl # line discipline
 
 extrn fn tcsetattr(fd: i32, optional_actions: i32, termios_p: *struc termios) i32;
 extrn fn tcgetattr(fd: i32, termios_p: *struc termios) i32;
-m4_define(TCSAFLUSH, 2)m4_dnl
-m4_define(BRKINT, 2)m4_dnl # 0000002 Signal interrupt on break.
-m4_define(INPCK, 16)m4_dnl # 0000020 Enable input parity check.
-m4_define(ISTRIP, 32)m4_dnl # 0000040 Strip 8th bit off characters.
-m4_define(ICRNL, 256)m4_dnl # 0000400 Map CR to NL on input.
-m4_define(IXON, `m4_ifdef(`__linux__', 1024, 512)')m4_dnl # 0002000
+m4_define(`TCSAFLUSH', `2')m4_dnl
+m4_define(`BRKINT', `2')m4_dnl # 0000002 Signal interrupt on break.
+m4_define(`INPCK', `16')m4_dnl # 0000020 Enable input parity check.
+m4_define(`ISTRIP', `32')m4_dnl # 0000040 Strip 8th bit off characters.
+m4_define(`ICRNL', `256')m4_dnl # 0000400 Map CR to NL on input.
+m4_define(`IXON', `m4_ifdef(`__linux__', `1024', `512')`'')m4_dnl # 0002000
 # Enable start/stop output control.
-m4_define(OPOST, 1)m4_dnl # 0000001 Post-process output.
-m4_define(CS8, `m4_ifdef(`__linux__', 48, 768)')m4_dnl # 0000060
-m4_define(ECHO, 8)m4_dnl # 0000010 Enable echo.
-m4_define(ICANON, `m4_ifdef(`__linux__', 2, 256)')m4_dnl # 0000002
+m4_define(`OPOST', `1')m4_dnl # 0000001 Post-process output.
+m4_define(`CS8', `m4_ifdef(`__linux__', `48', `768')`'')m4_dnl # 0000060
+m4_define(`ECHO', `8')m4_dnl # 0000010 Enable echo.
+m4_define(`ICANON', `m4_ifdef(`__linux__', `2', `256')`'')m4_dnl # 0000002
 # Canonical input (erase and kill processing).
-m4_define(IEXTEN, `m4_ifdef(`__linux__', 32768, 1024)')m4_dnl # 0100000
+m4_define(`IEXTEN', `m4_ifdef(`__linux__', `32768', `1024')`'')m4_dnl # 0100000
 # Enable implementation-defined input processing.
-m4_define(ISIG, `m4_ifdef(`__linux__', 1, 128)')m4_dnl # 0000001 Enable signals.
-m4_define(VTIME, `m4_ifdef(`__linux__', 5, 17)')m4_dnl
-m4_define(VMIN, `m4_ifdef(`__linux__', 6, 16)')m4_dnl
+m4_define(`ISIG', `m4_ifdef(`__linux__', `1', `128')`'')m4_dnl # 0000001 Enable signals.
+m4_define(`VTIME', `m4_ifdef(`__linux__', `5', `17')`'')m4_dnl
+m4_define(`VMIN', `m4_ifdef(`__linux__', `6', `16')`'')m4_dnl
 
 # errno.h
-m4_define(ENOENT, 2)m4_dnl # No such file or directory
-m4_define(ENOTTY, 25)m4_dnl # Not a typewriter
+m4_define(`ENOENT', `2')m4_dnl # No such file or directory
+m4_define(`ENOTTY', `25')m4_dnl # Not a typewriter
 
 # sys/ioctl.h
 type struc winsize(ws_row: [2]u8, ws_col: [2]u8, ws_xpixel: [2]u8, ws_ypixel: [2]u8)
 
 extrn fn ioctl(fd: i32, request: u64, ws: *struc winsize) i32;
-m4_define(TIOCGWINSZ, `m4_ifdef(`__linux__', 21523, 1074295912)')m4_dnl # 0x5413
+m4_define(`TIOCGWINSZ', `m4_ifdef(`__linux__', `21523', `1074295912')`'')m4_dnl # 0x5413
 
 # unistd.h
 extrn fn isatty(fd: i32) i32;
@@ -143,19 +143,19 @@ extrn fn read(fd: i32, buf: *any, nbytes: u64) i64;
 extrn fn write(fd: i32, buf: *any, n: u64) i64;
 extrn fn ftruncate(fd: i32, length: i64) i32;
 extrn fn close(fd: i32) i32;
-m4_define(STDIN_FILENO, 0)m4_dnl # Standard input.
-m4_define(STDOUT_FILENO, 1)m4_dnl # Standard output.
+m4_define(`STDIN_FILENO', `0')m4_dnl # Standard input.
+m4_define(`STDOUT_FILENO', `1')m4_dnl # Standard output.
 
 # fcntl.h
 extrn fn open(path: string, oflag: i32, mode: u32) i32;
-m4_define(O_RDWR, 2)m4_dnl # 02
-m4_define(O_CREAT, `m4_ifdef(`__linux__', 64, 512)')m4_dnl # 0100
-m4_define(COPYMODE, 420)m4_dnl # 0644
+m4_define(`O_RDWR', `2')m4_dnl # 02
+m4_define(`O_CREAT', `m4_ifdef(`__linux__', `64', `512')`'')m4_dnl # 0100
+m4_define(`COPYMODE', `420')m4_dnl # 0644
 
 # signal.h
 # Nonstandard signals found in all modern POSIX systems
 # (including both BSD and Linux).
-m4_define(SIGWINCH, 28)m4_dnl # Window size change (4.3 BSD, Sun).
+m4_define(`SIGWINCH', `28')m4_dnl # Window size change (4.3 BSD, Sun).
 
 # =========================== ANSI escape sequences ========================
 # https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
@@ -202,7 +202,7 @@ x1b_get_ws_rowcol: [13]char = $(ESC, '[', '9', '9', '9', 'C',
 
 # Here we define an array of syntax highlights by extensions, keywords,
 # comments delimiters and flags.
-m4_define(HLDB_ENTRIES, 2)m4_dnl
+m4_define(`HLDB_ENTRIES', `2')m4_dnl
 HLDB: [HLDB_ENTRIES]struc editorSyntax = $(
 # C / C++
 $(
@@ -486,7 +486,7 @@ fn editorRowHasOpenComment(row: *struc erow) bool {
     return false
 }
 
-m4_define(BACKTICK_CHAR, 96)m4_dnl
+m4_define(`BACKTICK_CHAR', `96')m4_dnl
 # Set every byte of row->hl (that corresponds to every character in the line)
 # to the right syntax highlight type (HL_* defines).
 fn editorUpdateSyntax(row: *struc erow) none {
@@ -706,7 +706,7 @@ fn editorSelectSyntaxHighlight(filename: string) none {
 # ======================= Editor rows implementation =======================
 
 # Update the rendered version and the syntax highlight of a row.
-m4_define(MAX_U32, 4294967295u)m4_dnl
+m4_define(`MAX_U32', `4294967295u')m4_dnl
 fn editorUpdateRow(row: *struc erow) none {
     tabs: u32 = 0
     nonprint: u32 = 0
@@ -1214,7 +1214,7 @@ fn editorSetStatusMessage(format: string) none {
 
 # =============================== Find mode ================================
 
-m4_define(KILO_QUERY_LEN, 256)m4_dnl
+m4_define(`KILO_QUERY_LEN', `256')m4_dnl
 fn editorFind(fd: i32) none {
     query: [m4_incr(KILO_QUERY_LEN)]char = $(0)
     qlen: i32 = 0
@@ -1415,7 +1415,7 @@ fn editorMoveCursor(key: i32) none {
 
 # Process events arriving from the standard input, which is, the user
 # is typing stuff on the terminal.
-m4_define(KILO_QUIT_TIMES, 3)m4_dnl
+m4_define(`KILO_QUIT_TIMES', `3')m4_dnl
 fn editorProcessKeypress(fd: i32) none {
     # When the file is modified, requires Ctrl-q to be pressed N times
     # before actually quitting.
