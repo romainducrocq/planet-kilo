@@ -33,6 +33,19 @@ and start your coding session :coffee:
 $ ./kilo <filename>
 ```
 
+### Demos
+
+```
+# Edit files
+$ ./kilo kilo.plx
+$ ./kilo sds.plx.m4
+$ ./kilo demo_sds.plx
+
+# Run sds demo
+$ planet -E demo_sds.plx && ./demo_sds
+Hello World from a simple dynamic string!
+```
+
 ![Demo gif](demo-kilo.gif)  
 
 ****
